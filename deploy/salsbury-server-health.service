@@ -1,0 +1,17 @@
+[Unit]
+Description=Salsbury server health dashboard
+After=network.target
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/salsbury-server-health
+ExecStart=/usr/bin/python3 /opt/salsbury-server-health/app.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+[Install]
+WantedBy=multi-user.target
