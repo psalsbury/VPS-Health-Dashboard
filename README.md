@@ -4,17 +4,19 @@ Live at https://health.salsbury.co.uk. A private Linux monitoring dashboard behi
 
 ## Included
 - CPU, memory, root disk space, uptime and load.
-- Key web and mail services, failed system services and restart-required status.
-- Website availability and certificate expiry for the four configured websites.
+- Key web and mail services, failed system services and restart-required status (with the packages waiting on it).
+- Website availability and certificate expiry for the four configured websites, plus the mail server (IMAP) and dashboard certificates. Certificates under 21 days are flagged as failed renewals.
+- Pending software updates (and how many are security updates) and the outgoing mail queue.
 - Last result and next run of website systemd timers.
-- Resource history held in memory (up to 2,880 samples; resets on service restart).
+- Four hours of resource history (up to 2,880 samples), saved to `/var/lib/salsbury-server-health` so it survives restarts.
 - Automatic page refresh every 15 seconds; resource collection approximately every 5 seconds; website checks every minute.
 - Stale readings and monitoring failures are shown as warnings.
 
 ## Files
 - `app.py`: Python standard-library monitor and HTTP server.
-- `index.html`: responsive dashboard.
+- `index.html`: responsive dashboard, laid out for phones down to 320px wide.
 - `deploy/salsbury-server-health.service`: restricted systemd service.
+- `deploy/history.conf`: systemd drop-in that adds the state directory for saved history and the access `postqueue` needs.
 - `deploy/bootstrap-http.conf`: initial Apache virtual host for ACME validation.
 - `activate.py`: certificate issuance, authenticated HTTPS proxy and renewal reload hook.
 
@@ -26,7 +28,7 @@ Requires Python 3.9+, systemd with JSON timer output, Apache 2, apache2-utils an
 3. Install deploy/bootstrap-http.conf as `/etc/apache2/sites-available/health.salsbury.co.uk.conf`.
 4. Enable the proxy, proxy_http, headers and rewrite modules and the health.salsbury.co.uk site.
 5. Create authentication interactively with `sudo htpasswd -c /etc/apache2/salsbury-health.htpasswd pete`. Set root:www-data ownership and mode 640.
-6. Install the supplied systemd service in /etc/systemd/system, run daemon-reload and enable --now salsbury-server-health.
+6. Install the supplied systemd service in /etc/systemd/system and deploy/history.conf as `/etc/systemd/system/salsbury-server-health.service.d/history.conf`, run daemon-reload and enable --now salsbury-server-health.
 7. Validate Apache configuration before reloading.
 8. Point the health DNS A record to this server; ensure any AAAA record routes to the same server.
 9. Run `sudo python3 /opt/salsbury-server-health/activate.py` to issue the certificate and activate HTTPS.
