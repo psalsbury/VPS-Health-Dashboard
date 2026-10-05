@@ -1,43 +1,237 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>Website dashboard · Salsbury</title>
-<style>*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;text-size-adjust:100%}body{margin:0;overflow-wrap:anywhere;background:#0b1220;color:#eef4ff;font:16px/1.5 system-ui,sans-serif}main{max-width:1150px;margin:auto;padding:30px 22px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}h1{font-size:26px;margin:0}h2{font-size:18px;margin:0 0 18px}h3{font-size:14px;color:#a9bbd5;font-weight:500;margin:18px 0 0}p{margin:6px 0;color:#9aabc3}button{min-height:44px;touch-action:manipulation;background:#203453;color:white;border:1px solid #42587a;border-radius:9px;padding:10px 16px;font:inherit;cursor:pointer}.banner{padding:18px 22px;background:#12352e;border:1px solid #286b55;border-radius:14px;margin-bottom:22px}.warn{background:#3c2d16;border-color:#947135}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card,section{background:#121e30;border:1px solid #293b55;border-radius:14px;padding:20px}.label{color:#a9bbd5;font-size:14px}.value{font-size:32px;font-weight:650;margin:10px 0}progress{width:100%;height:7px;accent-color:#55b7ff}.cards>*,.grid>*{min-width:0}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:18px}section.wide{grid-column:1/-1}.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-top:1px solid #26364d;align-items:center}.row>div{min-width:0}.row>span:last-child{text-align:right;flex-shrink:0;max-width:55%}.good{color:#71ddb0}.bad{color:#ffd084}.meta{font-size:13px;color:#9aabc3}.chartwrap{display:flex;gap:8px}.axis{display:flex;flex-direction:column;justify-content:space-between;font-size:12px;color:#9aabc3;height:150px;padding:6px 0}.chart{flex:1;min-width:0;width:100%;height:150px}.times{display:flex;justify-content:space-between;font-size:12px;color:#9aabc3;margin:4px 0 0 34px}svg{overflow:visible}.legend{display:flex;gap:22px;font-size:14px;margin-bottom:8px}a{color:#8acbff;text-decoration:none}ul{margin:8px 0;padding-left:22px}.job{padding:12px 0;border-top:1px solid #26364d}.jobline{display:flex;justify-content:space-between;gap:12px}.jobline>span:last-child{flex-shrink:0}footer{color:#9aabc3;font-size:13px;margin-top:20px}@media(max-width:700px){main{padding:18px max(12px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid{grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}header{align-items:flex-start;margin-bottom:16px}.value{font-size:26px;margin:6px 0}.card,section{padding:14px;border-radius:12px}h1{font-size:23px}h2{margin-bottom:12px}.banner{padding:14px 16px;margin-bottom:14px}.banner ul{padding-left:18px}.row{padding:10px 0;font-size:15px}.legend{gap:16px}.chart,.axis{height:120px}.jobline{flex-wrap:wrap;gap:2px 12px}}@media(max-width:360px){.cards{gap:8px}.card{padding:12px}.value{font-size:22px}.label,.meta{font-size:12px}.row{flex-wrap:wrap;gap:2px 12px}.row>span:last-child{max-width:none;margin-left:auto}}@media(prefers-reduced-motion:no-preference){progress{transition:all .3s}}</style>
-<main><header><div><h1>Salsbury · website dashboard</h1><p>Salsbury <span id="host"></span></p></div><button id="refresh">Refresh</button></header><style>
-.portfolio-head{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;margin:24px 0}select,input{background:#182b45;color:#eef4ff;border:1px solid #42587a;border-radius:8px;padding:10px;font:inherit;max-width:100%}.site-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.site-head{display:flex;justify-content:space-between;gap:10px}.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.metric{padding:12px;background:#0e1726;border-radius:9px}.metric b{display:block;font-size:24px;color:#eef4ff}.metric span{color:#a9bbd5;font-size:12px}.traffic-bars{display:flex;align-items:end;gap:4px;height:80px;margin:18px 0 6px}.traffic-bars div{flex:1;background:#55b7ff;border-radius:3px 3px 0 0;min-height:2px}.table-wrap{overflow:auto;max-height:420px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:10px;border-bottom:1px solid #293b55}th{position:sticky;top:0;background:#182b45}.nav{display:flex;gap:18px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid #293b55}.period-info{font-size:13px;color:#9aabc3}.table-tools{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0}summary{cursor:pointer;color:#8acbff;padding:12px 0}.badge{color:#71ddb0;font-size:12px}.site-grid section{padding:22px}.site-grid h2{margin-bottom:4px}@media(max-width:700px){.site-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}}
+<style>
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:130px}
+body{margin:0;overflow-wrap:anywhere;background:#0b1220;color:#eef4ff;font:16px/1.5 system-ui,sans-serif}
+a{color:#8acbff;text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:20px;margin:0}h2{font-size:18px;margin:0 0 14px}h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#a9bbd5;font-weight:600;margin:22px 0 10px}
+p{margin:6px 0;color:#9aabc3}ul{margin:8px 0;padding-left:22px}
+button,select,input{min-height:40px;touch-action:manipulation;background:#182b45;color:#eef4ff;border:1px solid #42587a;border-radius:9px;padding:8px 14px;font:inherit;max-width:100%}button{cursor:pointer;background:#203453}button:disabled{opacity:.6}
+:focus-visible{outline:2px solid #8acbff;outline-offset:2px}
+/* Top bar and navigation */
+.top{position:sticky;top:0;z-index:10;background:rgba(11,18,32,.96);backdrop-filter:blur(6px);border-bottom:1px solid #293b55}
+.bar{max-width:1150px;margin:auto;display:flex;align-items:center;gap:14px;padding:12px 22px 6px}
+.bar .grow{flex:1;min-width:0}.bar .host{font-size:13px;color:#9aabc3}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:99px;font-size:14px;font-weight:600;background:#12352e;color:#71ddb0;border:1px solid #286b55;white-space:nowrap}
+.pill.warn{background:#3c2d16;color:#ffd084;border-color:#947135}
+.tabs{max-width:1150px;margin:auto;display:flex;gap:4px;padding:0 22px;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs a{display:flex;align-items:center;gap:8px;padding:10px 14px;color:#a9bbd5;border-bottom:3px solid transparent;white-space:nowrap;font-size:15px}
+.tabs a:hover{color:#eef4ff;text-decoration:none}
+.tabs a[aria-current=page]{color:#eef4ff;border-bottom-color:var(--c,#8acbff);font-weight:600}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--c,#8acbff);flex-shrink:0;display:inline-block}
+.flag{width:7px;height:7px;border-radius:50%;background:#ffd084;display:none}.flag.on{display:inline-block}
+main{max-width:1150px;margin:auto;padding:24px 22px 40px}
+.view[hidden]{display:none}
+.viewhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.viewhead h2{font-size:24px;margin:0;display:flex;align-items:center;gap:10px}.viewhead h2 .dot{width:14px;height:14px}
+.crumbs{font-size:13px;color:#9aabc3;margin-bottom:4px}
+/* Building blocks */
+.banner{padding:14px 18px;background:#12352e;border:1px solid #286b55;border-radius:14px;margin-bottom:18px}.banner.warn{background:#3c2d16;border-color:#947135}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card,section{background:#121e30;border:1px solid #293b55;border-radius:14px;padding:20px;min-width:0}
+.label{color:#a9bbd5;font-size:14px}.value{font-size:30px;font-weight:650;margin:8px 0}
+progress{width:100%;height:7px;accent-color:#55b7ff}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-top:18px}.wide{grid-column:1/-1}
+.row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-top:1px solid #26364d;align-items:center}.row>div{min-width:0}.row>span:last-child{text-align:right;flex-shrink:0;max-width:55%}
+.good{color:#71ddb0}.bad{color:#ffd084}.meta{font-size:13px;color:#9aabc3}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.metric{padding:12px 14px;background:#0e1726;border-radius:10px;border:1px solid #1f2e45}.metric b{display:block;font-size:24px}.metric span{color:#a9bbd5;font-size:13px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{font-size:13px;padding:4px 10px;border-radius:99px;background:#0e1726;border:1px solid #293b55;color:#a9bbd5}.chip.good{color:#71ddb0;border-color:#286b55}.chip.bad{color:#ffd084;border-color:#947135}
+/* Overview site cards */
+.site-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
+.site-card{border-top:4px solid var(--c);display:flex;flex-direction:column;gap:12px}
+.site-card h2{margin:0;font-size:19px;display:flex;align-items:center;gap:9px}
+.site-card .open{margin-top:auto;align-self:flex-start;font-weight:600;color:var(--c)}
+.spark{display:flex;align-items:end;gap:3px;height:46px}.spark div{flex:1;background:var(--c);opacity:.85;border-radius:2px 2px 0 0;min-height:2px}
+.site-accent{border-left:4px solid var(--c)}
+/* Site detail */
+.bars{display:flex;align-items:end;gap:4px;height:120px;margin:14px 0 6px}.bars div{flex:1;background:var(--c,#55b7ff);border-radius:3px 3px 0 0;min-height:2px}
+.times{display:flex;justify-content:space-between;font-size:12px;color:#9aabc3}
+.table-wrap{overflow:auto;max-height:460px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #293b55}th{position:sticky;top:0;background:#182b45}td.n,th.n{text-align:right}
+.table-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+/* Server view */
+.chartwrap{display:flex;gap:8px}.axis{display:flex;flex-direction:column;justify-content:space-between;font-size:12px;color:#9aabc3;height:150px;padding:6px 0}.chart{flex:1;min-width:0;width:100%;height:150px}svg{overflow:visible}
+.legend{display:flex;gap:22px;font-size:14px;margin-bottom:8px}
+.job{padding:10px 0;border-top:1px solid #26364d}.jobline{display:flex;justify-content:space-between;gap:12px}.jobline>span:last-child{flex-shrink:0}
+footer{color:#9aabc3;font-size:13px;margin-top:24px}
+@media(max-width:800px){.site-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){html{scroll-padding-top:115px}.bar{padding:10px max(12px,env(safe-area-inset-right)) 4px max(12px,env(safe-area-inset-left));gap:10px}.bar .host{display:none}.tabs{padding:0 8px}.tabs a{padding:9px 10px;font-size:14px}main{padding:16px max(12px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid{grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}.value{font-size:24px;margin:6px 0}.card,section{padding:14px;border-radius:12px}.viewhead h2{font-size:21px}.row{font-size:15px}.chart,.axis{height:120px}.jobline{flex-wrap:wrap;gap:2px 12px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:18px}.long{display:none}}
+@media(max-width:360px){.cards{gap:8px}.value{font-size:21px}.label,.meta{font-size:12px}.row{flex-wrap:wrap;gap:2px 12px}.row>span:last-child{max-width:none;margin-left:auto}.pill{font-size:12px;padding:4px 9px}}
+@media(prefers-reduced-motion:no-preference){progress{transition:all .3s}}
 </style>
-<nav class="nav"><a href="#portfolio">Website overview</a><a href="#club-bank">Club data</a><a href="#server">Server & jobs</a></nav>
-<div id="portfolio" class="portfolio-head"><div><h2>All your websites, one view</h2><p id="portfolio-time">Loading admin data…</p></div><label>Traffic & activity <select id="period"><option value="1">Today</option><option value="7" selected>Last 7 days</option><option value="30">Last 30 days</option></select></label></div>
-<div class="cards" id="portfolio-totals"></div>
-<p class="period-info">UK calendar days · Homepage hits count successful page requests, with recognised bots and monitors excluded. Repeat visits count again.</p>
-<div class="site-grid" id="portfolio-sites"></div>
-<section id="club-bank" style="margin-top:18px"><h2>ClubDailyFive · club coverage</h2><p>Question bank and Wordle players available per club. Wordle opens at 10 players; target 100.</p><div class="table-tools"><input id="club-search" aria-label="Search clubs" placeholder="Search clubs…"><span id="bank-summary" class="meta"></span></div><div class="table-wrap"><table><thead><tr><th>Club</th><th>Questions</th><th>Wordle players</th><th>Progress to 100</th></tr></thead><tbody id="club-rows"></tbody></table></div></section>
-<div id="server" class="portfolio-head"><div><h2>Server & scheduled jobs</h2><p>Live infrastructure readings and service alerts</p></div></div>
-<div id="status" class="banner" role="status">Connecting to your server…</div><div class="cards"><div class="card"><div class="label">CPU usage</div><div class="value" id="cpu">—</div><progress id="cpubar" max="100"></progress><p class="meta" id="load"></p></div><div class="card"><div class="label">Memory</div><div class="value" id="memory">—</div><progress id="memorybar" max="100"></progress><p class="meta" id="ram"></p></div><div class="card"><div class="label">Disk usage</div><div class="value" id="disk">—</div><progress id="diskbar" max="100"></progress><p class="meta" id="free"></p></div><div class="card"><div class="label">Server uptime</div><div class="value" id="uptime">—</div><p class="meta" id="reboot"></p></div></div><div class="grid"><section class="wide"><h2>Resource history</h2><div class="legend"><span style="color:#55b7ff">CPU</span><span style="color:#bf9aff">Memory</span><span style="color:#71ddb0">Disk</span></div><div class="chartwrap"><div class="axis"><span>100%</span><span>50%</span><span>0%</span></div><svg class="chart" viewBox="0 0 1000 150" preserveAspectRatio="none" aria-label="Resource usage over time" role="img"><path d="M0 15H1000M0 75H1000M0 135H1000" stroke="#293b55"/><g id="lines"></g></svg></div><div class="times"><span id="tstart"></span><span id="tend"></span></div><p class="meta" id="history">Covers the last four hours and is kept when the dashboard restarts.</p></section><section><h2>Key services</h2><div id="services">Waiting for readings…</div></section><section><h2>Websites & HTTPS</h2><div id="sites">Checks in progress…</div><h3>Other certificates</h3><div id="certs">Checks in progress…</div></section><section><h2>Maintenance</h2><div id="maint">Waiting for readings…</div></section><section><h2>Scheduled website jobs</h2><div id="jobs">Waiting for readings…</div></section></div><footer id="updated">Live readings refresh every 15 seconds. Website checks run every minute.</footer></main>
-<script>const $=id=>document.getElementById(id);const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const stamp=x=>x?new Date(x>1e14?x/1000:x>1e11?x:x*1000).toLocaleString('en-GB',{timeZone:'Europe/London'}):'Not recorded';const clock=x=>new Date(x*1000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});const row=(l,r,ok,sub)=>'<div class="row"><div>'+l+(sub?'<div class="meta">'+sub+'</div>':'')+'</div><span class="'+(ok?'good':'bad')+'">'+r+'</span></div>';const certtext=s=>'HTTPS certificate: '+s.certificate_days+' days remaining';let busy=false;async function update(){if(busy)return;busy=true;$('refresh').disabled=true;try{let r=await fetch('/api/health',{cache:'no-store'});if(!r.ok)throw Error();let d=await r.json();if(!d.time)throw Error();let stale=Date.now()/1000-d.time>30||d.collector_error;let warnings=d.alerts||[];$('status').className='banner'+(stale||warnings.length?' warn':'');$('status').innerHTML=stale?'Readings are stale — monitoring needs attention.':warnings.length?'<strong>Needs attention</strong><ul>'+warnings.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<strong>All monitored checks are healthy</strong>';$('host').textContent='· '+d.hostname;for(let k of ['cpu','memory','disk']){$(k).textContent=d[k]+'%';$(k+'bar').value=d[k]}$('load').textContent='Load '+d.load.map(x=>x.toFixed(2)).join(' / ')+' · '+d.cores+' CPUs';$('ram').textContent=d.memory_total.toFixed(1)+' GB total';$('free').textContent=d.disk_free.toFixed(1)+' GB available';let days=Math.floor(d.uptime/86400);$('uptime').textContent=days+'d '+Math.floor(d.uptime%86400/3600)+'h';$('reboot').innerHTML=d.reboot?'<span class="bad">Restart needed to finish updates</span>':'No restart needed';$('services').innerHTML=d.services.map(s=>row(esc(s.name),esc(s.state),s.state==='active')).join('');$('sites').innerHTML=(d.sites||[]).map(s=>row('<a href="https://'+esc(s.name)+'" target="_blank" rel="noopener">'+esc(s.name)+'</a>',s.ok?'Online · '+s.ms+' ms':'Check failed',s.ok&&s.certificate_days>=21,s.ok?certtext(s):esc(s.error))).join('')||'Checks in progress…';$('certs').innerHTML=(d.certs||[]).map(s=>row(esc(s.name),s.ok?s.certificate_days+' days':'Check failed',s.ok&&s.certificate_days>=21,esc(s.host)+(s.ok?'':' · '+esc(s.error)))).join('')||'Checks in progress…';let m='';let u=d.updates;if(u)m+=row('Software updates',u.total?u.total+' available':'Up to date',!u.security,u.security?u.security+' are security updates':'Security updates install automatically each night');let rb=d.reboot;m+=row('Server restart',rb?'Pending '+Math.floor((Date.now()/1000-rb.since)/86400)+' days':'Not needed',!rb,rb?'Needed to finish installing: '+esc(rb.packages.join(', ')):'');if(d.mail_queue!=null)m+=row('Outgoing mail queue',d.mail_queue+' waiting',d.mail_queue<20,d.mail_queue?'Emails waiting to be delivered or retried':'All mail has been delivered');m+=row('Failed system services',d.failed.length?d.failed.length:'None',!d.failed.length,d.failed.length?esc(d.failed.join(', ')):'');$('maint').innerHTML=m;$('jobs').innerHTML=d.jobs.map(j=>'<div class="job"><div class="jobline"><span>'+esc(j.name)+'</span><span class="'+(j.result==='success'?'good':'bad')+'">'+esc(j.state==='activating'?'Running':j.result)+'</span></div><div class="meta">Last: '+stamp(j.last)+' · Next: '+stamp(j.next)+'</div></div>').join('');let h=d.history,t0=h.length?h[0].time:d.time,span=Math.max(1,d.time-t0);$('lines').innerHTML=['cpu','memory','disk'].map((k,i)=>'<polyline fill="none" stroke="'+['#55b7ff','#bf9aff','#71ddb0'][i]+'" stroke-width="2" vector-effect="non-scaling-stroke" points="'+h.map(p=>((p.time-t0)*1000/span).toFixed(1)+','+(135-p[k]*1.2)).join(' ')+'"/>').join('');$('tstart').textContent=h.length?clock(t0):'';$('tend').textContent=clock(d.time);$('updated').textContent='Updated '+stamp(d.time)+' (UK) · Readings every 15 seconds · Website checks every minute'}catch(e){$('status').className='banner warn';$('status').textContent='Unable to reach the monitor. Existing readings may be out of date.'}finally{busy=false;$('refresh').disabled=false}}$('refresh').onclick=update;update();setInterval(update,15000);</script>
+<div class="top">
+ <div class="bar"><div class="grow"><h1>Salsbury<span class="long"> · website dashboard</span></h1><div class="host" id="host"></div></div><span class="pill" id="pill" role="status">Connecting…</span><button id="refresh">Refresh</button></div>
+ <nav class="tabs" id="tabs" aria-label="Dashboard sections"></nav>
+</div>
+<main>
+ <!-- Overview -->
+ <div class="view" id="view-overview">
+  <div class="viewhead"><div><h2>Overview</h2><p id="portfolio-time">Loading admin data…</p></div><label class="meta">Period <select class="period" aria-label="Period"></select></label></div>
+  <div id="status" class="banner" role="status">Connecting to your server…</div>
+  <div class="cards" id="portfolio-totals"></div>
+  <div class="site-grid" id="site-cards"></div>
+  <section class="site-accent" style="--c:#8a9bb5;margin-top:18px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h2 style="margin:0">Server</h2><a href="#server">Server details →</a></div><div class="metric-grid" id="server-mini" style="margin-top:12px"></div></section>
+  <p class="meta" style="margin-top:14px">UK calendar days. Homepage hits count successful requests to the homepage, excluding recognised bots and monitors. Repeat visits are counted again.</p>
+ </div>
+ <!-- One view per site, filled by script -->
+ <div id="site-views"></div>
+ <!-- Server -->
+ <div class="view" id="view-server">
+  <div class="viewhead"><div><div class="crumbs"><a href="#overview">Overview</a> / Server</div><h2><span class="dot" style="--c:#8a9bb5"></span>Server &amp; scheduled jobs</h2><p>Live infrastructure readings and service alerts</p></div></div>
+  <div class="cards"><div class="card"><div class="label">CPU usage</div><div class="value" id="cpu">—</div><progress id="cpubar" max="100"></progress><p class="meta" id="load"></p></div><div class="card"><div class="label">Memory</div><div class="value" id="memory">—</div><progress id="memorybar" max="100"></progress><p class="meta" id="ram"></p></div><div class="card"><div class="label">Disk usage</div><div class="value" id="disk">—</div><progress id="diskbar" max="100"></progress><p class="meta" id="free"></p></div><div class="card"><div class="label">Server uptime</div><div class="value" id="uptime">—</div><p class="meta" id="reboot"></p></div></div>
+  <div class="grid">
+   <section class="wide"><h2>Resource history</h2><div class="legend"><span style="color:#55b7ff">CPU</span><span style="color:#bf9aff">Memory</span><span style="color:#71ddb0">Disk</span></div><div class="chartwrap"><div class="axis"><span>100%</span><span>50%</span><span>0%</span></div><svg class="chart" viewBox="0 0 1000 150" preserveAspectRatio="none" aria-label="Resource usage over time" role="img"><path d="M0 15H1000M0 75H1000M0 135H1000" stroke="#293b55"/><g id="lines"></g></svg></div><div class="times" style="margin-left:34px"><span id="tstart"></span><span id="tend"></span></div><p class="meta">Covers the last four hours and is kept when the dashboard restarts.</p></section>
+   <section><h2>Key services</h2><div id="services">Waiting for readings…</div></section>
+   <section><h2>Websites &amp; HTTPS</h2><div id="sites">Checks in progress…</div><h3>Other certificates</h3><div id="certs">Checks in progress…</div></section>
+   <section><h2>Maintenance</h2><div id="maint">Waiting for readings…</div></section>
+   <section><h2>Scheduled website jobs</h2><div id="jobs">Waiting for readings…</div></section>
+  </div>
+ </div>
+ <footer id="updated">Live readings refresh every 15 seconds. Website checks run every minute.</footer>
+</main>
 <script>
-let portfolioData=null;
-const names={'clubdailyfive.com':'ClubDailyFive','predictioncomp.com':'PredictionComp','louisesalsbury.com':'Pharmacy IQ','salsbury.co.uk':'Diabetes training'};
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=x=>Number(x||0).toLocaleString('en-GB');
-function ukday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
-function rangeDays(){let today=ukday(),n=Number($('period').value),end=new Date(today+'T12:00:00Z');return Array.from({length:n},(_,i)=>{let d=new Date(end);d.setUTCDate(d.getUTCDate()-(n-1-i));return d.toISOString().slice(0,10)})}
-const metric=(label,value)=>'<div class="metric"><b>'+num(value)+'</b><span>'+esc(label)+'</span></div>';
-function drawPortfolio(){
- if(!portfolioData)return;let days=rangeDays(),sumHome=0,sumErrors=0,totalRequests=0;
- $('portfolio-time').textContent='Admin data updated '+new Date(portfolioData.updated_at).toLocaleString('en-GB',{timeZone:'Europe/London'})+' · refreshes every minute';
- $('portfolio-sites').innerHTML=Object.entries(portfolioData.sites).map(([domain,s])=>{
- let t=s.traffic||{days:{}},rows=days.map(d=>t.days[d]||{}),home=rows.reduce((a,r)=>a+(r.home||0),0),bots=rows.reduce((a,r)=>a+(r.bots||0),0),errors=rows.reduce((a,r)=>a+(r.errors||0),0),requests=rows.reduce((a,r)=>a+(r.requests||0),0);
- sumHome+=home;sumErrors+=errors;totalRequests+=requests;
- let max=Math.max(1,...rows.map(r=>r.home||0)),pages={};
- rows.forEach(r=>Object.entries(r.pages||{}).forEach(([p,n])=>pages[p]=(pages[p]||0)+n));
- let activity=(s.activity||[]).filter(r=>days.includes(r.date)),events={};
- activity.forEach(r=>{let k=r.game+' '+r.event;events[k]=(events[k]||0)+r.total});
- let details=s.next_round?'<p class="meta">Next round '+esc(s.next_round.round)+': '+num(s.next_round.fixtures)+' fixtures · '+num(s.next_round.humans)+' humans and '+num(s.next_round.bots)+' bots have predictions.</p>':'';
- details+=(s.details||[]).map(x=>'<p class="meta">'+esc(x.label)+': '+esc(x.value||'Not recorded')+'</p>').join('');
- if(s.runs)details+='<details><summary>Recent database jobs</summary>'+s.runs.map(r=>'<div class="row"><span>'+esc(r.date)+'</span><span>'+esc(r.status)+'</span></div>').join('')+'</details>';
- return '<section><div class="site-head"><div><h2>'+esc(names[domain])+'</h2><a target="_blank" rel="noopener" href="https://'+domain+'">'+domain+' ↗</a></div></div><div class="metric-grid">'+metric('Homepage hits · selected period',home)+metric('Bot / monitor homepage hits',bots)+metric('Server errors · selected period',errors)+'</div><div class="traffic-bars" role="img" aria-label="Daily homepage hits">'+rows.map((r,i)=>'<div style="height:'+Math.max(2,(r.home||0)/max*100)+'%" title="'+days[i]+': '+num(r.home)+' hits"></div>').join('')+'</div><div class="times" style="margin-left:0"><span>'+days[0]+'</span><span>'+days.at(-1)+'</span></div><p class="meta">Traffic history available from '+esc(t.available_from||'today; awaiting first requests')+'. Missing earlier days are not recorded.</p><h3>Admin totals · current database</h3><div class="metric-grid">'+Object.entries(s.metrics).map(([k,v])=>metric(k,v)).join('')+'</div>'+ (activity.length?'<h3>Activity · selected period</h3><div class="metric-grid">'+Object.entries(events).map(([k,v])=>metric(k,v)).join('')+'</div>':'')+details+(s.note?'<p class="meta">'+esc(s.note)+'</p>':'')+(s.error||s.data_error?'<p class="bad">'+esc(s.error||s.data_error)+'</p>':'')+'<details><summary>Most opened pages · selected period</summary>'+Object.entries(pages).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([p,n])=>'<div class="row"><span>'+esc(p)+'</span><span>'+num(n)+'</span></div>').join('')+'</details></section>';
- }).join('');
- $('portfolio-totals').innerHTML=[['Active sites',Object.keys(portfolioData.sites).length],['Homepage hits',sumHome],['GET requests',totalRequests],['Server errors',sumErrors]].map(([k,v])=>'<div class="card"><div class="label">'+k+'</div><div class="value">'+num(v)+'</div><div class="meta">Selected period</div></div>').join('');
- drawClubs();
+const stamp=x=>x?new Date(x>1e14?x/1000:x>1e11?x:x*1000).toLocaleString('en-GB',{timeZone:'Europe/London'}):'Not recorded';
+const clock=x=>new Date(x*1000).toLocaleTimeString('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'});
+const row=(l,r,ok,sub)=>'<div class="row"><div>'+l+(sub?'<div class="meta">'+sub+'</div>':'')+'</div><span class="'+(ok?'good':'bad')+'">'+r+'</span></div>';
+const metric=(label,value)=>'<div class="metric"><b>'+(typeof value==='number'?num(value):esc(value))+'</b><span>'+esc(label)+'</span></div>';
+const sum=(rows,k)=>rows.reduce((a,r)=>a+(r[k]||0),0);
+const title=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+// Each site has a fixed slug (used in the URL) and colour so it is easy to tell apart.
+const SITES=[
+ {slug:'clubdailyfive',domain:'clubdailyfive.com',name:'ClubDailyFive',color:'#5aa9ff',about:'Daily football club quizzes and Wordle',jobs:['clubdailyfive','player-wordle']},
+ {slug:'predictioncomp',domain:'predictioncomp.com',name:'PredictionComp',color:'#ff7ab6',about:'Football score prediction competition',jobs:['predictioncomp']},
+ {slug:'pharmacy',domain:'louisesalsbury.com',name:'Pharmacy IQ',color:'#b48cff',about:'Drug interaction quiz for pharmacy learners',jobs:[]},
+ {slug:'diabetes',domain:'salsbury.co.uk',name:'Diabetes training',color:'#2ec4b6',about:'Diabetes Learning Hub quizzes and activities',jobs:[]}];
+const PERIODS=[[1,'Today'],[7,'Last 7 days'],[30,'Last 30 days']];
+let health=null,portfolioData=null,period=7;
+
+// ---- Navigation ----
+$('tabs').innerHTML='<a href="#overview" data-view="overview">Overview</a>'+SITES.map(s=>'<a href="#'+s.slug+'" data-view="'+s.slug+'" style="--c:'+s.color+'"><span class="dot"></span>'+esc(s.name)+'<span class="flag" id="flag-'+s.slug+'" title="Needs attention"></span></a>').join('')+'<a href="#server" data-view="server" style="--c:#8a9bb5"><span class="dot"></span>Server<span class="flag" id="flag-server" title="Needs attention"></span></a>';
+$('site-views').innerHTML=SITES.map(s=>'<div class="view" id="view-'+s.slug+'" style="--c:'+s.color+'"><div class="viewhead"><div><div class="crumbs"><a href="#overview">Overview</a> / '+esc(s.name)+'</div><h2><span class="dot"></span>'+esc(s.name)+'</h2><p>'+esc(s.about)+' · <a href="https://'+s.domain+'" target="_blank" rel="noopener">'+s.domain+' ↗</a></p></div><label class="meta">Period <select class="period" aria-label="Period"></select></label></div><div class="chips" id="chips-'+s.slug+'" style="margin-bottom:18px"></div><div id="body-'+s.slug+'"><p>Loading…</p></div></div>').join('');
+document.querySelectorAll('.period').forEach(sel=>{sel.innerHTML=PERIODS.map(([v,l])=>'<option value="'+v+'"'+(v===period?' selected':'')+'>'+l+'</option>').join('');sel.onchange=()=>{period=Number(sel.value);document.querySelectorAll('.period').forEach(o=>o.value=period);drawPortfolio()}});
+function route(){
+ let want=location.hash.slice(1)||'overview';
+ if(!document.getElementById('view-'+want))want='overview';
+ document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='view-'+want);
+ document.querySelectorAll('#tabs a').forEach(a=>{if(a.dataset.view===want){a.setAttribute('aria-current','page');a.scrollIntoView({block:'nearest',inline:'nearest'})}else a.removeAttribute('aria-current')});
+ let s=SITES.find(x=>x.slug===want);document.title=(s?s.name:want==='server'?'Server':'Overview')+' · Salsbury dashboard';
+ window.scrollTo(0,0);
 }
-function drawClubs(){let all=portfolioData?.sites['clubdailyfive.com'].clubs||[],filter=$('club-search').value.toLowerCase();$('bank-summary').textContent=all.filter(c=>c.players>=100).length+'/'+all.length+' clubs at 100 players';$('club-rows').innerHTML=all.filter(c=>c.name.toLowerCase().includes(filter)).map(c=>'<tr><td>'+esc(c.name)+'</td><td>'+num(c.questions)+'</td><td>'+num(c.players)+(c.players<10?' <span class="bad">Building</span>':'')+'</td><td><progress max="100" value="'+Math.min(c.players,100)+'" aria-label="'+esc(c.name)+' player coverage"></progress></td></tr>').join('')}
-async function loadPortfolio(){try{let r=await fetch('/api/portfolio',{cache:'no-store'});if(!r.ok)throw Error();let d=await r.json();if(!d.sites)throw Error();portfolioData=d;drawPortfolio();if(Date.now()-Date.parse(d.updated_at)>180000)$('portfolio-time').textContent+=' · WARNING: statistics are stale'}catch(e){$('portfolio-time').textContent='Admin data unavailable. Please refresh; server readings remain below.'}}
-$('refresh').onclick=()=>{update();loadPortfolio()};$('period').onchange=drawPortfolio;$('club-search').oninput=drawClubs;loadPortfolio();setInterval(loadPortfolio,60000);
+addEventListener('hashchange',route);route();
+
+// ---- Shared helpers ----
+function ukday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
+function rangeDays(){let end=new Date(ukday()+'T12:00:00Z');return Array.from({length:period},(_,i)=>{let d=new Date(end);d.setUTCDate(d.getUTCDate()-(period-1-i));return d.toISOString().slice(0,10)})}
+const shortDay=d=>new Date(d+'T12:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+const check=s=>(health?.sites||[]).find(x=>x.name===s.domain);
+const siteJobs=s=>(health?.jobs||[]).filter(j=>s.jobs.some(p=>j.name.startsWith(p)));
+const jobOk=j=>j.result==='success'||j.result==='unknown';
+function siteIssues(s){
+ let out=[],c=check(s);
+ if(c&&!c.ok)out.push(c.error);else if(c&&c.certificate_days<21)out.push('HTTPS certificate expires in '+c.certificate_days+' days');
+ siteJobs(s).filter(j=>!jobOk(j)).forEach(j=>out.push(j.name+' last run: '+j.result));
+ let p=portfolioData?.sites[s.domain];if(p&&(p.error||p.data_error))out.push(p.error||p.data_error);
+ return out;
+}
+function statusChips(s){
+ let c=check(s),h='';
+ if(!c)h+='<span class="chip">Checking…</span>';
+ else if(c.ok)h+='<span class="chip good">● Online · '+c.ms+' ms</span><span class="chip '+(c.certificate_days>=21?'good':'bad')+'">HTTPS · '+c.certificate_days+' days left</span>';
+ else h+='<span class="chip bad">● Offline · '+esc(c.error)+'</span>';
+ let jobs=siteJobs(s);if(jobs.length){let bad=jobs.filter(j=>!jobOk(j)).length;h+='<span class="chip '+(bad?'bad':'good')+'">'+(bad?bad+' job'+(bad>1?'s':'')+' failing':jobs.length+' scheduled job'+(jobs.length>1?'s':'')+' OK')+'</span>'}
+ return h;
+}
+function trafficFor(s){
+ let days=rangeDays(),t=portfolioData?.sites[s.domain]?.traffic||{days:{}},rows=days.map(d=>t.days[d]||{}),pages={};
+ rows.forEach(r=>Object.entries(r.pages||{}).forEach(([p,n])=>pages[p]=(pages[p]||0)+n));
+ return {days,rows,t,pages,home:sum(rows,'home'),bots:sum(rows,'bots'),errors:sum(rows,'errors'),requests:sum(rows,'requests')};
+}
+const bars=(tr,cls)=>{let max=Math.max(1,...tr.rows.map(r=>r.home||0));return '<div class="'+cls+'" role="img" aria-label="Daily homepage hits">'+tr.rows.map((r,i)=>'<div style="height:'+Math.max(2,(r.home||0)/max*100)+'%" title="'+shortDay(tr.days[i])+': '+num(r.home)+' hits"></div>').join('')+'</div>'};
+
+// ---- Overview and site pages ----
+function drawPortfolio(){
+ if(portfolioData){
+  let stale=Date.now()-Date.parse(portfolioData.updated_at)>180000;
+  $('portfolio-time').innerHTML='Admin data updated '+new Date(portfolioData.updated_at).toLocaleString('en-GB',{timeZone:'Europe/London'})+' · refreshes every minute'+(stale?' · <span class="bad">statistics are stale</span>':'');
+ }
+ let totals={home:0,requests:0,errors:0},online=0;
+ $('site-cards').innerHTML=SITES.map(s=>{
+  let tr=trafficFor(s),p=portfolioData?.sites[s.domain]||{},issues=siteIssues(s),c=check(s);
+  totals.home+=tr.home;totals.requests+=tr.requests;totals.errors+=tr.errors;if(c?.ok)online++;
+  let headline=Object.entries(p.metrics||{}).slice(0,2);
+  return '<section class="site-card" style="--c:'+s.color+'"><div><h2><span class="dot"></span><a href="#'+s.slug+'" style="color:inherit">'+esc(s.name)+'</a></h2><a class="meta" href="https://'+s.domain+'" target="_blank" rel="noopener">'+s.domain+' ↗</a></div><div class="chips">'+statusChips(s)+'</div>'
+   +(issues.length?'<div class="bad" style="font-size:14px">'+issues.map(esc).join('<br>')+'</div>':'')
+   +'<div class="metric-grid">'+metric('Homepage hits',tr.home)+headline.map(([k,v])=>metric(k,v)).join('')+'</div>'
+   +(period>1?bars(tr,'spark'):'')
+   +'<a class="open" href="#'+s.slug+'">Open '+esc(s.name)+' →</a></section>';
+ }).join('');
+ $('portfolio-totals').innerHTML=[['Sites online',health?online+' / '+SITES.length:'—'],['Homepage hits',num(totals.home)],['GET requests',num(totals.requests)],['Server errors',num(totals.errors)]].map(([k,v])=>'<div class="card"><div class="label">'+k+'</div><div class="value">'+v+'</div><div class="meta">'+(k==='Sites online'?'Checked every minute':PERIODS.find(x=>x[0]===period)[1])+'</div></div>').join('');
+ SITES.forEach(drawSite);
+}
+function drawSite(s){
+ $('chips-'+s.slug).innerHTML=statusChips(s);
+ $('flag-'+s.slug).classList.toggle('on',siteIssues(s).length>0);
+ if(!portfolioData)return;
+ let p=portfolioData.sites[s.domain]||{},tr=trafficFor(s),h='',issues=siteIssues(s);
+ if(issues.length)h+='<div class="banner warn"><strong>Needs attention</strong><ul>'+issues.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>';
+ h+='<div class="grid" style="margin-top:0">';
+ h+='<section class="wide"><h2>Traffic</h2><div class="metric-grid">'+metric('Homepage hits',tr.home)+metric('Bot / monitor homepage hits',tr.bots)+metric('All GET requests',tr.requests)+metric('Server errors (5xx)',tr.errors)+'</div>'+bars(tr,'bars')+'<div class="times"><span>'+shortDay(tr.days[0])+'</span><span>'+shortDay(tr.days.at(-1))+'</span></div><p class="meta">Traffic history available from '+esc(tr.t.available_from?shortDay(tr.t.available_from):'today; awaiting first requests')+'. Earlier days were not recorded.</p></section>';
+ h+='<section><h2>Admin totals</h2><p class="meta" style="margin-bottom:12px">Current database figures</p><div class="metric-grid">'+Object.entries(p.metrics||{}).map(([k,v])=>metric(k,v)).join('')+'</div>'+(p.note?'<p class="meta" style="margin-top:12px">'+esc(p.note)+'</p>':'')+'</section>';
+ let events={},act='';
+ (p.activity||[]).filter(r=>tr.days.includes(r.date)).forEach(r=>{let k=title(r.game)+' · '+r.event;events[k]=(events[k]||0)+r.total});
+ if(Object.keys(events).length)act+='<div class="metric-grid">'+Object.entries(events).map(([k,v])=>metric(k,v)).join('')+'</div>';
+ else if(p.activity)act+='<p>No activity recorded in this period.</p>';
+ if(p.next_round)act+='<h3>Next round</h3>'+row('Round '+esc(p.next_round.round),num(p.next_round.fixtures)+' fixtures',true,num(p.next_round.humans)+' humans and '+num(p.next_round.bots)+' bots have predictions');
+ if(p.details?.length)act+='<h3>Status</h3>'+p.details.map(x=>row(esc(x.label),esc(x.value||'Not recorded'),!!x.value)).join('');
+ h+='<section><h2>Activity</h2>'+(act||'<p>This site does not record activity centrally.</p>')+'</section>';
+ let jobs=siteJobs(s),hasJobs=jobs.length||p.runs;
+ if(hasJobs)h+='<section><h2>Scheduled jobs</h2>'+jobs.map(j=>'<div class="job"><div class="jobline"><span>'+esc(j.name)+'</span><span class="'+(jobOk(j)?'good':'bad')+'">'+esc(j.state==='activating'?'Running':j.result)+'</span></div><div class="meta">Last: '+stamp(j.last)+' · Next: '+stamp(j.next)+'</div></div>').join('')+(p.runs?'<h3>Recent database jobs</h3>'+p.runs.map(r=>{let st=String(r.status||''),bad=/fail|error/i.test(st);return '<div class="row"><div>'+esc(String(r.date||'').replace('T',' ').slice(0,19))+'</div><span class="'+(bad?'bad':/success|ok|complete/i.test(st)?'good':'meta')+'">'+esc(st)+'</span></div>'}).join(''):'')+'</section>';
+ let top=Object.entries(tr.pages).sort((a,b)=>b[1]-a[1]).slice(0,10);
+ h+='<section'+(hasJobs?'':' class="wide"')+'><h2>Most opened pages</h2>'+(top.length?'<table><thead><tr><th>Page</th><th class="n">Opens</th></tr></thead><tbody>'+top.map(([pg,n])=>'<tr><td>'+esc(pg)+'</td><td class="n">'+num(n)+'</td></tr>').join('')+'</tbody></table>':'<p>No page opens recorded in this period.</p>')+'</section>';
+ if(p.clubs)h+='<section class="wide"><h2>Club coverage</h2><p>Question bank and Wordle players per club. Wordle opens at 10 players; target 100.</p><div class="table-tools"><input id="club-search" aria-label="Search clubs" placeholder="Search clubs…"><span id="bank-summary" class="meta"></span></div><div class="table-wrap"><table><thead><tr><th>Club</th><th class="n">Questions</th><th class="n">Wordle players</th><th>Progress to 100</th></tr></thead><tbody id="club-rows"></tbody></table></div></section>';
+ h+='</div>';
+ // Keep the club search text and focus across the regular redraws.
+ let search=document.getElementById('club-search'),q=search?.value||'',focused=search&&document.activeElement===search;
+ $('body-'+s.slug).innerHTML=h;
+ if(p.clubs){let el=$('club-search');el.value=q;el.oninput=drawClubs;if(focused){el.focus();el.setSelectionRange(q.length,q.length)}drawClubs()}
+}
+function drawClubs(){let all=portfolioData?.sites['clubdailyfive.com']?.clubs||[],filter=$('club-search').value.toLowerCase();$('bank-summary').textContent=all.filter(c=>c.players>=100).length+'/'+all.length+' clubs at 100 players';$('club-rows').innerHTML=all.filter(c=>c.name.toLowerCase().includes(filter)).map(c=>'<tr><td>'+esc(c.name)+'</td><td class="n">'+num(c.questions)+'</td><td class="n">'+num(c.players)+(c.players<10?' <span class="bad">Building</span>':'')+'</td><td><progress max="100" value="'+Math.min(c.players,100)+'" aria-label="'+esc(c.name)+' player coverage"></progress></td></tr>').join('')}
+async function loadPortfolio(){try{let r=await fetch('/api/portfolio',{cache:'no-store'});if(!r.ok)throw Error();let d=await r.json();if(!d.sites)throw Error();portfolioData=d;drawPortfolio()}catch(e){$('portfolio-time').textContent='Admin data unavailable. Please refresh; live server checks still work.'}}
+
+// ---- Live server readings ----
+let busy=false;
+async function update(){if(busy)return;busy=true;$('refresh').disabled=true;try{let r=await fetch('/api/health',{cache:'no-store'});if(!r.ok)throw Error();let d=await r.json();if(!d.time)throw Error();health=d;
+ let stale=Date.now()/1000-d.time>30||d.collector_error,warnings=d.alerts||[];
+ $('status').className='banner'+(stale||warnings.length?' warn':'');
+ $('status').innerHTML=stale?'Readings are stale — monitoring needs attention.':warnings.length?'<strong>Needs attention</strong><ul>'+warnings.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'<strong>All monitored checks are healthy</strong>';
+ $('pill').className='pill'+(stale||warnings.length?' warn':'');$('pill').textContent=stale?'● Readings stale':warnings.length?'● '+warnings.length+' issue'+(warnings.length>1?'s':''):'● All healthy';
+ let serverIssue=stale||d.failed.length||d.reboot||d.services.some(s=>s.state!=='active')||['cpu','memory','disk'].some(k=>d[k]>=85)||(d.mail_queue??0)>=20||(d.certs||[]).some(c=>!c.ok||c.certificate_days<21);
+ $('flag-server').classList.toggle('on',!!serverIssue);
+ $('host').textContent='Server '+d.hostname;
+ for(let k of ['cpu','memory','disk']){$(k).textContent=d[k]+'%';$(k+'bar').value=d[k]}
+ $('load').textContent='Load '+d.load.map(x=>x.toFixed(2)).join(' / ')+' · '+d.cores+' CPUs';$('ram').textContent=d.memory_total.toFixed(1)+' GB total';$('free').textContent=d.disk_free.toFixed(1)+' GB available';
+ let up=Math.floor(d.uptime/86400)+'d '+Math.floor(d.uptime%86400/3600)+'h';$('uptime').textContent=up;$('reboot').innerHTML=d.reboot?'<span class="bad">Restart needed to finish updates</span>':'No restart needed';
+ let down=d.services.filter(s=>s.state!=='active').length;
+ $('server-mini').innerHTML=metric('CPU',d.cpu+'%')+metric('Memory',d.memory+'%')+metric('Disk',d.disk+'%')+metric('Services running',(d.services.length-down)+' / '+d.services.length)+metric('Uptime',up);
+ $('services').innerHTML=d.services.map(s=>row(esc(s.name),esc(s.state),s.state==='active')).join('');
+ $('sites').innerHTML=(d.sites||[]).map(s=>{let site=SITES.find(x=>x.domain===s.name);return row((site?'<span class="dot" style="--c:'+site.color+';margin-right:8px"></span><a href="#'+site.slug+'">'+esc(site.name)+'</a> <span class="meta">'+esc(s.name)+'</span>':esc(s.name)),s.ok?'Online · '+s.ms+' ms':'Check failed',s.ok&&s.certificate_days>=21,s.ok?'HTTPS certificate: '+s.certificate_days+' days remaining':esc(s.error))}).join('')||'Checks in progress…';
+ $('certs').innerHTML=(d.certs||[]).map(s=>row(esc(s.name),s.ok?s.certificate_days+' days':'Check failed',s.ok&&s.certificate_days>=21,esc(s.host)+(s.ok?'':' · '+esc(s.error)))).join('')||'Checks in progress…';
+ let m='',u=d.updates,rb=d.reboot;
+ if(u)m+=row('Software updates',u.total?u.total+' available':'Up to date',!u.security,u.security?u.security+' are security updates':'Security updates install automatically each night');
+ m+=row('Server restart',rb?'Pending '+Math.floor((Date.now()/1000-rb.since)/86400)+' days':'Not needed',!rb,rb?'Needed to finish installing: '+esc(rb.packages.join(', ')):'');
+ if(d.mail_queue!=null)m+=row('Outgoing mail queue',d.mail_queue+' waiting',d.mail_queue<20,d.mail_queue?'Emails waiting to be delivered or retried':'All mail has been delivered');
+ m+=row('Failed system services',d.failed.length?d.failed.length:'None',!d.failed.length,d.failed.length?esc(d.failed.join(', ')):'');
+ $('maint').innerHTML=m;
+ $('jobs').innerHTML=d.jobs.map(j=>{let site=SITES.find(s=>s.jobs.some(p=>j.name.startsWith(p)));return '<div class="job"><div class="jobline"><span>'+(site?'<span class="dot" style="--c:'+site.color+';margin-right:8px"></span>':'')+esc(j.name)+'</span><span class="'+(jobOk(j)?'good':'bad')+'">'+esc(j.state==='activating'?'Running':j.result)+'</span></div><div class="meta">'+(site?'<a href="#'+site.slug+'">'+esc(site.name)+'</a> · ':'')+'Last: '+stamp(j.last)+' · Next: '+stamp(j.next)+'</div></div>'}).join('');
+ let h=d.history,t0=h.length?h[0].time:d.time,span=Math.max(1,d.time-t0);
+ $('lines').innerHTML=['cpu','memory','disk'].map((k,i)=>'<polyline fill="none" stroke="'+['#55b7ff','#bf9aff','#71ddb0'][i]+'" stroke-width="2" vector-effect="non-scaling-stroke" points="'+h.map(p=>((p.time-t0)*1000/span).toFixed(1)+','+(135-p[k]*1.2)).join(' ')+'"/>').join('');
+ $('tstart').textContent=h.length?clock(t0):'';$('tend').textContent=clock(d.time);
+ $('updated').textContent='Updated '+stamp(d.time)+' (UK) · Live readings every 15 seconds · Website checks and admin data every minute';
+ drawPortfolio();
+}catch(e){$('status').className='banner warn';$('status').textContent='Unable to reach the monitor. Existing readings may be out of date.';$('pill').className='pill warn';$('pill').textContent='● Monitor unreachable'}finally{busy=false;$('refresh').disabled=false}}
+$('refresh').onclick=()=>{update();loadPortfolio()};
+update();loadPortfolio();setInterval(update,15000);setInterval(loadPortfolio,60000);
 </script></html>

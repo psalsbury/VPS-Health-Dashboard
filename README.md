@@ -14,7 +14,7 @@ Live at https://health.salsbury.co.uk. A private Linux monitoring dashboard behi
 
 ## Files
 - `app.py`: Python standard-library monitor and HTTP server.
-- `index.html`: responsive dashboard, laid out for phones down to 320px wide.
+- `index.html`: responsive dashboard, laid out for phones down to 320px wide. A sticky tab bar switches between an Overview, one page per website (colour-coded, linkable as `#clubdailyfive`, `#predictioncomp`, `#pharmacy`, `#diabetes`) and a `#server` page. Each site page combines its uptime/HTTPS check, scheduled jobs, traffic, admin totals and activity; tabs show a dot when that area needs attention.
 - `deploy/salsbury-server-health.service`: restricted systemd service.
 - `deploy/history.conf`: systemd drop-in that adds the state directory for saved history and the access `postqueue` needs.
 - `deploy/bootstrap-http.conf`: initial Apache virtual host for ACME validation.

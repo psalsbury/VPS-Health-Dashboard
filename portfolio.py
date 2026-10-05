@@ -83,17 +83,17 @@ def collect():
  cutoff=(dt.datetime.now(UK).date()-dt.timedelta(days=29)).isoformat()
  for domain,site in data['sites'].items():
   prior=old.get('sites',{}).get(domain,{}).get('traffic') or {}
-  traffic=site.get('traffic')
-  if not traffic:
+  fresh=site.get('traffic')
+  if not fresh:
    if prior:
     site['traffic']=prior
     site['error']='Traffic collection failed; showing last available traffic snapshot.'
    continue
-  starts=[x for x in [prior.get('available_from'),traffic.get('available_from')] if x]
-  if starts:traffic['available_from']=min(starts)
+  starts=[x for x in [prior.get('available_from'),fresh.get('available_from')] if x]
+  if starts:fresh['available_from']=min(starts)
   for day,row in prior.get('days',{}).items():
    if day<cutoff:continue
-   current=traffic['days'].setdefault(day,dict(home=0,bots=0,requests=0,errors=0,pages={}))
+   current=fresh['days'].setdefault(day,dict(home=0,bots=0,requests=0,errors=0,pages={}))
    for key in ['home','bots','requests','errors']:current[key]=max(current.get(key,0),row.get(key,0))
    for page,n in row.get('pages',{}).items():current['pages'][page]=max(current['pages'].get(page,0),n)
  STATE.mkdir(exist_ok=True)
