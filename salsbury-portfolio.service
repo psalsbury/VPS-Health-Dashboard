@@ -1,0 +1,5 @@
+[Unit]
+Description=Aggregate website admin metrics
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/salsbury-server-health/portfolio.py

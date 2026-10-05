@@ -126,7 +126,11 @@ def collect():
             with lock: latest={**latest,'collector_error':True}
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path=='/api/health':
+        if self.path=='/api/portfolio':
+            try: body=(STATE/'portfolio.json').read_bytes()
+            except OSError: body=b'{"error":"Statistics collector has not completed"}'
+            content='application/json'
+        elif self.path=='/api/health':
             with lock: body=json.dumps(dict(latest,history=list(history))).encode()
             content='application/json'
         elif self.path in ['/','/index.html']:

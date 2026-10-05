@@ -1,0 +1,7 @@
+[Unit]
+Description=Refresh website admin metrics every minute
+[Timer]
+OnBootSec=10
+OnUnitActiveSec=60
+[Install]
+WantedBy=timers.target
