@@ -5,6 +5,8 @@ from zoneinfo import ZoneInfo
 ROOT=pathlib.Path('/opt/salsbury-server-health')
 STATE=pathlib.Path('/var/lib/salsbury-server-health')
 UK=ZoneInfo('Europe/London')
+KEEP_DAYS=366  # daily traffic totals kept for the dashboard's 12-month views
+TOP_PAGES=25  # pages kept per day
 DOMAINS=['clubdailyfive.com','predictioncomp.com','louisesalsbury.com','salsbury.co.uk']
 LOGS={'clubdailyfive.com':'clubdailyfive.com-access.log','predictioncomp.com':'predictioncomp.com-access.log','louisesalsbury.com':'louisesalsbury.com-metrics.log','salsbury.co.uk':'salsbury.co.uk-metrics.log'}
 PAT=re.compile(r'\[([^]]+)\] "(\w+) ([^ ]+) [^"]+" (\d{3}) [^ ]+ "[^"]*" "([^"]*)"')
@@ -44,7 +46,7 @@ def parse(p):
 def traffic(domain,cache,fresh_cache):
  # Rotated logs never change, so their totals are reused while name, size and mtime match; only the live log is re-read.
  days={}; earliest=None
- cutoff=(dt.datetime.now(UK).date()-dt.timedelta(days=29)).isoformat()
+ cutoff=(dt.datetime.now(UK).date()-dt.timedelta(days=KEEP_DAYS)).isoformat()
  for p in pathlib.Path('/var/log/apache2').glob(LOGS[domain]+'*'):
   if not p.is_file():continue
   st=p.stat(); key=[st.st_size,st.st_mtime_ns]
@@ -105,7 +107,7 @@ def collect():
  # Preserve complete daily aggregates as Apache rotates and removes old logs.
  try: old=json.loads((STATE/'portfolio.json').read_text())
  except (OSError,ValueError): old={}
- cutoff=(dt.datetime.now(UK).date()-dt.timedelta(days=29)).isoformat()
+ cutoff=(dt.datetime.now(UK).date()-dt.timedelta(days=KEEP_DAYS)).isoformat()
  for domain,site in data['sites'].items():
   prior=old.get('sites',{}).get(domain,{}).get('traffic') or {}
   fresh=site.get('traffic')
@@ -121,6 +123,9 @@ def collect():
    current=fresh['days'].setdefault(day,dict(home=0,bots=0,requests=0,errors=0,pages={}))
    for key in ['home','bots','requests','errors']:current[key]=max(current.get(key,0),row.get(key,0))
    for page,n in row.get('pages',{}).items():current['pages'][page]=max(current['pages'].get(page,0),n)
+  # Keep only each day's most opened pages so a year of history stays small.
+  for row in fresh['days'].values():
+   if len(row['pages'])>TOP_PAGES:row['pages']=dict(sorted(row['pages'].items(),key=lambda x:-x[1])[:TOP_PAGES])
  STATE.mkdir(exist_ok=True)
  tmp=STATE/'portfolio.tmp';tmp.write_text(json.dumps(data));tmp.chmod(0o640)
  import grp,os

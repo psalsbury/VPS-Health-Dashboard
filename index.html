@@ -41,10 +41,16 @@ progress{width:100%;height:7px;accent-color:#55b7ff}
 .site-card{border-top:4px solid var(--c);display:flex;flex-direction:column;gap:12px}
 .site-card h2{margin:0;font-size:19px;display:flex;align-items:center;gap:9px}
 .site-card .open{margin-top:auto;align-self:flex-start;font-weight:600;color:var(--c)}
-.spark{display:flex;align-items:end;gap:3px;height:46px}.spark div{flex:1;background:var(--c);opacity:.85;border-radius:2px 2px 0 0;min-height:2px}
 .site-accent{border-left:4px solid var(--c)}
 /* Site detail */
-.bars{display:flex;align-items:end;gap:4px;height:120px;margin:14px 0 6px}.bars div{flex:1;background:var(--c,#55b7ff);border-radius:3px 3px 0 0;min-height:2px}
+.bars,.spark{display:flex;gap:3px}.bars{height:130px;margin:16px 0 4px}.spark{height:46px}
+.b{flex:1;min-width:0;min-height:0;height:100%;padding:0;border:0;border-radius:4px 4px 0 0;background:transparent;display:flex;align-items:flex-end;cursor:pointer}
+.b span{display:block;width:100%;min-height:2px;background:var(--c);border-radius:3px 3px 0 0;transition:opacity .15s}
+.b:hover:enabled{background:rgba(255,255,255,.06)}.b:disabled{cursor:default;opacity:1}.b:disabled span{background:#293b55}.b[aria-pressed=true]{background:rgba(255,255,255,.1)}.has-focus .b[aria-pressed=false] span{opacity:.3}
+.xl{display:flex;gap:3px;font-size:12px;color:#9aabc3}.xl span{flex:1;min-width:0;white-space:nowrap}
+.trafhead{display:flex;justify-content:space-between;align-items:baseline;gap:6px 14px;flex-wrap:wrap;margin-bottom:14px}.trafhead h2{margin:0}
+.link{background:none;border:0;padding:0;min-height:0;color:#8acbff;cursor:pointer;font:inherit;text-decoration:underline}
+.period-ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .times{display:flex;justify-content:space-between;font-size:12px;color:#9aabc3}
 .table-wrap{overflow:auto;max-height:460px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #293b55}th{position:sticky;top:0;background:#182b45}td.n,th.n{text-align:right}
 .table-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
@@ -65,7 +71,7 @@ footer{color:#9aabc3;font-size:13px;margin-top:24px}
 <main>
  <!-- Overview -->
  <div class="view" id="view-overview">
-  <div class="viewhead"><div><h2>Overview</h2><p id="portfolio-time">Loading admin data…</p></div><label class="meta">Period <select class="period" aria-label="Period"></select></label></div>
+  <div class="viewhead"><div><h2>Overview</h2><p id="portfolio-time">Loading admin data…</p></div><div class="period-ctl"></div></div>
   <div id="status" class="banner" role="status">Connecting to your server…</div>
   <div class="cards" id="portfolio-totals"></div>
   <div class="site-grid" id="site-cards"></div>
@@ -105,13 +111,13 @@ const SITES=[
  {slug:'predictioncomp',domain:'predictioncomp.com',name:'PredictionComp',color:'#ff7ab6',about:'Football score prediction competition',jobs:['predictioncomp']},
  {slug:'pharmacy',domain:'louisesalsbury.com',name:'Pharmacy IQ',color:'#b48cff',about:'Drug interaction quiz for pharmacy learners',jobs:[]},
  {slug:'diabetes',domain:'salsbury.co.uk',name:'Diabetes training',color:'#2ec4b6',about:'Diabetes Learning Hub quizzes and activities',jobs:[]}];
-const PERIODS=[[1,'Today'],[7,'Last 7 days'],[30,'Last 30 days']];
-let health=null,portfolioData=null,period=7;
+const KINDS=[['1','Today'],['7','Last 7 days'],['30','Last 30 days'],['week','A single week'],['month','A single month'],['year','Last 12 months, by week']];
+// period: the selected range; focus: the bar clicked on each site's chart (by slug).
+let health=null,portfolioData=null,period={kind:'7'},focus={},ctlHtml='';
 
 // ---- Navigation ----
 $('tabs').innerHTML='<a href="#overview" data-view="overview">Overview</a>'+SITES.map(s=>'<a href="#'+s.slug+'" data-view="'+s.slug+'" style="--c:'+s.color+'"><span class="dot"></span>'+esc(s.name)+'<span class="flag" id="flag-'+s.slug+'" title="Needs attention"></span></a>').join('')+'<a href="#server" data-view="server" style="--c:#8a9bb5"><span class="dot"></span>Server<span class="flag" id="flag-server" title="Needs attention"></span></a>';
-$('site-views').innerHTML=SITES.map(s=>'<div class="view" id="view-'+s.slug+'" style="--c:'+s.color+'"><div class="viewhead"><div><div class="crumbs"><a href="#overview">Overview</a> / '+esc(s.name)+'</div><h2><span class="dot"></span>'+esc(s.name)+'</h2><p>'+esc(s.about)+' · <a href="https://'+s.domain+'" target="_blank" rel="noopener">'+s.domain+' ↗</a></p></div><label class="meta">Period <select class="period" aria-label="Period"></select></label></div><div class="chips" id="chips-'+s.slug+'" style="margin-bottom:18px"></div><div id="body-'+s.slug+'"><p>Loading…</p></div></div>').join('');
-document.querySelectorAll('.period').forEach(sel=>{sel.innerHTML=PERIODS.map(([v,l])=>'<option value="'+v+'"'+(v===period?' selected':'')+'>'+l+'</option>').join('');sel.onchange=()=>{period=Number(sel.value);document.querySelectorAll('.period').forEach(o=>o.value=period);drawPortfolio()}});
+$('site-views').innerHTML=SITES.map(s=>'<div class="view" id="view-'+s.slug+'" style="--c:'+s.color+'"><div class="viewhead"><div><div class="crumbs"><a href="#overview">Overview</a> / '+esc(s.name)+'</div><h2><span class="dot"></span>'+esc(s.name)+'</h2><p>'+esc(s.about)+' · <a href="https://'+s.domain+'" target="_blank" rel="noopener">'+s.domain+' ↗</a></p></div><div class="period-ctl"></div></div><div class="chips" id="chips-'+s.slug+'" style="margin-bottom:18px"></div><div id="body-'+s.slug+'"><p>Loading…</p></div></div>').join('');
 function route(){
  let want=location.hash.slice(1)||'overview';
  if(!document.getElementById('view-'+want))want='overview';
@@ -124,7 +130,45 @@ addEventListener('hashchange',route);route();
 
 // ---- Shared helpers ----
 function ukday(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
-function rangeDays(){let end=new Date(ukday()+'T12:00:00Z');return Array.from({length:period},(_,i)=>{let d=new Date(end);d.setUTCDate(d.getUTCDate()-(period-1-i));return d.toISOString().slice(0,10)})}
+const addDays=(d,n)=>{let x=new Date(d+'T12:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
+const monday=d=>addDays(d,-((new Date(d+'T12:00:00Z').getUTCDay()+6)%7));
+const span=(a,b)=>{let out=[];for(let d=a;d<=b;d=addDays(d,1))out.push(d);return out};
+const longDay=d=>new Date(d+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const monthName=ym=>new Date(ym+'-15T12:00:00Z').toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+// Days in the last year with any traffic or activity, used to offer only weeks and months that have stats.
+function statDays(){
+ let today=ukday(),first=addDays(today,-365),set=new Set();
+ Object.values(portfolioData?.sites||{}).forEach(s=>{Object.keys(s.traffic?.days||{}).forEach(d=>set.add(d));(s.activity||[]).forEach(r=>set.add(r.date))});
+ return [...set].filter(d=>d>=first&&d<=today).sort();
+}
+const weekOptions=()=>[...new Set(statDays().map(monday))].reverse();
+const monthOptions=()=>[...new Set(statDays().map(d=>d.slice(0,7)))].reverse();
+function ensurePeriod(){
+ if(period.kind==='week'&&!period.start)period.start=weekOptions()[0]||monday(ukday());
+ if(period.kind==='month'&&!period.ym)period.ym=monthOptions()[0]||ukday().slice(0,7);
+}
+function periodLabel(){let k=period.kind;return k==='week'?'Week of '+longDay(period.start):k==='month'?monthName(period.ym):k==='year'?'Last 12 months':KINDS.find(x=>x[0]===k)[1]}
+// One bar per day, or one per week for the 12-month view.
+function buckets(){
+ let today=ukday(),k=period.kind,day=d=>({key:d,label:longDay(d),short:shortDay(d),days:d<=today?[d]:[],future:d>today});
+ if(k==='week')return span(period.start,addDays(period.start,6)).map(day);
+ if(k==='month'){let [y,m]=period.ym.split('-').map(Number);return span(period.ym+'-01',new Date(Date.UTC(y,m,0)).toISOString().slice(0,10)).map(day)}
+ if(k==='year'){let first=addDays(monday(today),-51*7);return Array.from({length:52},(_,i)=>{let w=addDays(first,i*7);return {key:'w'+w,label:'Week of '+longDay(w),short:shortDay(w),days:span(w,addDays(w,6)).filter(d=>d<=today)}})}
+ let n=Number(k);return span(addDays(today,1-n),today).map(day);
+}
+function renderControls(){
+ let k=period.kind,h='<label class="meta">Period <select data-ctl="kind" aria-label="Period">'+KINDS.map(([v,l])=>'<option value="'+v+'"'+(v===k?' selected':'')+'>'+l+'</option>').join('')+'</select></label>';
+ if(k==='week'){let o=weekOptions();if(!o.includes(period.start))o.unshift(period.start);h+='<select data-ctl="week" aria-label="Week">'+o.map(w=>'<option value="'+w+'"'+(w===period.start?' selected':'')+'>Week of '+shortDay(w)+' '+w.slice(0,4)+'</option>').join('')+'</select>'}
+ if(k==='month'){let o=monthOptions();if(!o.includes(period.ym))o.unshift(period.ym);h+='<select data-ctl="month" aria-label="Month">'+o.map(m=>'<option value="'+m+'"'+(m===period.ym?' selected':'')+'>'+monthName(m)+'</option>').join('')+'</select>'}
+ // Only replace the controls when they change, so an open menu is not closed by the regular refresh.
+ if(h===ctlHtml)return;ctlHtml=h;document.querySelectorAll('.period-ctl').forEach(el=>el.innerHTML=h);
+}
+document.addEventListener('change',e=>{let c=e.target.dataset.ctl;if(!c)return;if(c==='kind')period={kind:e.target.value};else if(c==='week')period.start=e.target.value;else period.ym=e.target.value;focus={};drawPortfolio()});
+document.addEventListener('click',e=>{
+ let b=e.target.closest('.b');
+ if(b){let slug=b.dataset.site,spark=b.closest('.spark');focus[slug]=!spark&&focus[slug]===b.dataset.key?undefined:b.dataset.key;drawPortfolio();if(spark)location.hash=slug;else document.querySelector('#body-'+slug+' .b[data-key="'+b.dataset.key+'"]')?.focus();return}
+ let c=e.target.closest('[data-clear]');if(c){delete focus[c.dataset.clear];drawPortfolio()}
+});
 const shortDay=d=>new Date(d+'T12:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
 const check=s=>(health?.sites||[]).find(x=>x.name===s.domain);
 const siteJobs=s=>(health?.jobs||[]).filter(j=>s.jobs.some(p=>j.name.startsWith(p)));
@@ -144,31 +188,38 @@ function statusChips(s){
  let jobs=siteJobs(s);if(jobs.length){let bad=jobs.filter(j=>!jobOk(j)).length;h+='<span class="chip '+(bad?'bad':'good')+'">'+(bad?bad+' job'+(bad>1?'s':'')+' failing':jobs.length+' scheduled job'+(jobs.length>1?'s':'')+' OK')+'</span>'}
  return h;
 }
-function trafficFor(s){
- let days=rangeDays(),t=portfolioData?.sites[s.domain]?.traffic||{days:{}},rows=days.map(d=>t.days[d]||{}),pages={};
+function trafficFor(s,useFocus=true){
+ let bs=buckets(),t=portfolioData?.sites[s.domain]?.traffic||{days:{}},get=d=>t.days[d]||{};
+ let f=useFocus?bs.find(b=>b.key===focus[s.slug]):null,days=f?f.days:bs.flatMap(b=>b.days),rows=days.map(get),pages={};
  rows.forEach(r=>Object.entries(r.pages||{}).forEach(([p,n])=>pages[p]=(pages[p]||0)+n));
- return {days,rows,t,pages,home:sum(rows,'home'),bots:sum(rows,'bots'),errors:sum(rows,'errors'),requests:sum(rows,'requests')};
+ return {bs,focus:f,days,rows,t,pages,values:bs.map(b=>sum(b.days.map(get),'home')),home:sum(rows,'home'),bots:sum(rows,'bots'),errors:sum(rows,'errors'),requests:sum(rows,'requests')};
 }
-const bars=(tr,cls)=>{let max=Math.max(1,...tr.rows.map(r=>r.home||0));return '<div class="'+cls+'" role="img" aria-label="Daily homepage hits">'+tr.rows.map((r,i)=>'<div style="height:'+Math.max(2,(r.home||0)/max*100)+'%" title="'+shortDay(tr.days[i])+': '+num(r.home)+' hits"></div>').join('')+'</div>'};
+function bars(tr,cls,s){
+ let max=Math.max(1,...tr.values),n=tr.bs.length,step=Math.ceil(n/7);
+ let h='<div class="'+cls+(tr.focus?' has-focus':'')+'">'+tr.bs.map((b,i)=>{let t=esc(b.label)+': '+num(tr.values[i])+' homepage hits';if(b.future)return '<button type="button" class="b" disabled title="'+esc(b.label)+': not yet" aria-label="'+esc(b.label)+': not yet"><span style="height:0"></span></button>';return '<button type="button" class="b" data-site="'+s.slug+'" data-key="'+b.key+'" aria-pressed="'+(tr.focus?.key===b.key)+'" title="'+t+'" aria-label="'+t+'"><span style="height:'+Math.max(2,tr.values[i]/max*100)+'%"></span></button>'}).join('')+'</div>';
+ if(cls==='bars')h+='<div class="xl" aria-hidden="true">'+tr.bs.map((b,i)=>'<span>'+(i%step===0?esc(b.short):'')+'</span>').join('')+'</div>';
+ return h;
+}
 
 // ---- Overview and site pages ----
 function drawPortfolio(){
+ ensurePeriod();renderControls();
  if(portfolioData){
   let stale=Date.now()-Date.parse(portfolioData.updated_at)>180000;
   $('portfolio-time').innerHTML='Admin data updated '+new Date(portfolioData.updated_at).toLocaleString('en-GB',{timeZone:'Europe/London'})+' · refreshes every 15 seconds'+(stale?' · <span class="bad">statistics are stale</span>':'');
  }
  let totals={home:0,requests:0,errors:0},online=0;
  $('site-cards').innerHTML=SITES.map(s=>{
-  let tr=trafficFor(s),p=portfolioData?.sites[s.domain]||{},issues=siteIssues(s),c=check(s);
+  let tr=trafficFor(s,false),p=portfolioData?.sites[s.domain]||{},issues=siteIssues(s),c=check(s);
   totals.home+=tr.home;totals.requests+=tr.requests;totals.errors+=tr.errors;if(c?.ok)online++;
   let headline=Object.entries(p.metrics||{}).slice(0,2);
   return '<section class="site-card" style="--c:'+s.color+'"><div><h2><span class="dot"></span><a href="#'+s.slug+'" style="color:inherit">'+esc(s.name)+'</a></h2><a class="meta" href="https://'+s.domain+'" target="_blank" rel="noopener">'+s.domain+' ↗</a></div><div class="chips">'+statusChips(s)+'</div>'
    +(issues.length?'<div class="bad" style="font-size:14px">'+issues.map(esc).join('<br>')+'</div>':'')
    +'<div class="metric-grid">'+metric('Homepage hits',tr.home)+headline.map(([k,v])=>metric(k,v)).join('')+'</div>'
-   +(period>1?bars(tr,'spark'):'')
+   +(tr.bs.length>1?bars(tr,'spark',s):'')
    +'<a class="open" href="#'+s.slug+'">Open '+esc(s.name)+' →</a></section>';
  }).join('');
- $('portfolio-totals').innerHTML=[['Sites online',health?online+' / '+SITES.length:'—'],['Homepage hits',num(totals.home)],['GET requests',num(totals.requests)],['Server errors',num(totals.errors)]].map(([k,v])=>'<div class="card"><div class="label">'+k+'</div><div class="value">'+v+'</div><div class="meta">'+(k==='Sites online'?'Checked every minute':PERIODS.find(x=>x[0]===period)[1])+'</div></div>').join('');
+ $('portfolio-totals').innerHTML=[['Sites online',health?online+' / '+SITES.length:'—'],['Homepage hits',num(totals.home)],['GET requests',num(totals.requests)],['Server errors',num(totals.errors)]].map(([k,v])=>'<div class="card"><div class="label">'+k+'</div><div class="value">'+v+'</div><div class="meta">'+(k==='Sites online'?'Checked every minute':esc(periodLabel()))+'</div></div>').join('');
  SITES.forEach(drawSite);
 }
 function drawSite(s){
@@ -178,24 +229,26 @@ function drawSite(s){
  let p=portfolioData.sites[s.domain]||{},tr=trafficFor(s),h='',issues=siteIssues(s);
  if(issues.length)h+='<div class="banner warn"><strong>Needs attention</strong><ul>'+issues.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>';
  h+='<div class="grid" style="margin-top:0">';
- h+='<section class="wide"><h2>Traffic</h2><div class="metric-grid">'+metric('Homepage hits',tr.home)+metric('Bot / monitor homepage hits',tr.bots)+metric('All GET requests',tr.requests)+metric('Server errors (5xx)',tr.errors)+'</div>'+bars(tr,'bars')+'<div class="times"><span>'+shortDay(tr.days[0])+'</span><span>'+shortDay(tr.days.at(-1))+'</span></div><p class="meta">Traffic history available from '+esc(tr.t.available_from?shortDay(tr.t.available_from):'today; awaiting first requests')+'. Earlier days were not recorded.</p></section>';
+ let scope=tr.focus?tr.focus.label:periodLabel(),unit=period.kind==='year'?'week':'day';
+ h+='<section class="wide"><div class="trafhead"><h2>Traffic</h2><span class="meta">'+(tr.focus?'Showing <strong>'+esc(tr.focus.label)+'</strong> · <button type="button" class="link" data-clear="'+s.slug+'">Back to '+esc(periodLabel())+'</button>':'Showing '+esc(periodLabel())+(tr.bs.length>1?' · Click a bar to see that '+unit:''))+'</span></div><div class="metric-grid">'+metric('Homepage hits',tr.home)+metric('Bot / monitor homepage hits',tr.bots)+metric('All GET requests',tr.requests)+metric('Server errors (5xx)',tr.errors)+'</div>'+bars(tr,'bars',s)+'<p class="meta">Traffic history available from '+esc(tr.t.available_from?shortDay(tr.t.available_from)+' '+tr.t.available_from.slice(0,4):'today; awaiting first requests')+'. Earlier days were not recorded.</p></section>';
  h+='<section><h2>Admin totals</h2><p class="meta" style="margin-bottom:12px">Current database figures</p><div class="metric-grid">'+Object.entries(p.metrics||{}).map(([k,v])=>metric(k,v)).join('')+'</div>'+(p.note?'<p class="meta" style="margin-top:12px">'+esc(p.note)+'</p>':'')+'</section>';
  let events={},act='';
- (p.activity||[]).filter(r=>tr.days.includes(r.date)).forEach(r=>{let k=title(r.game)+' · '+r.event;events[k]=(events[k]||0)+r.total});
+ let inScope=new Set(tr.days);(p.activity||[]).filter(r=>inScope.has(r.date)).forEach(r=>{let k=title(r.game)+' · '+r.event;events[k]=(events[k]||0)+r.total});
  if(Object.keys(events).length)act+='<div class="metric-grid">'+Object.entries(events).map(([k,v])=>metric(k,v)).join('')+'</div>';
  else if(p.activity)act+='<p>No activity recorded in this period.</p>';
  if(p.next_round)act+='<h3>Next round</h3>'+row('Round '+esc(p.next_round.round),num(p.next_round.fixtures)+' fixtures',true,num(p.next_round.humans)+' humans and '+num(p.next_round.bots)+' bots have predictions');
  if(p.details?.length)act+='<h3>Status</h3>'+p.details.map(x=>row(esc(x.label),esc(x.value||'Not recorded'),!!x.value)).join('');
- h+='<section><h2>Activity</h2>'+(act||'<p>This site does not record activity centrally.</p>')+'</section>';
+ h+='<section><h2>Activity</h2><p class="meta" style="margin:-8px 0 12px">'+esc(scope)+'</p>'+(act||'<p>This site does not record activity centrally.</p>')+'</section>';
  let jobs=siteJobs(s),hasJobs=jobs.length||p.runs;
  if(hasJobs)h+='<section><h2>Scheduled jobs</h2>'+jobs.map(j=>'<div class="job"><div class="jobline"><span>'+esc(j.name)+'</span><span class="'+(jobOk(j)?'good':'bad')+'">'+esc(j.state==='activating'?'Running':j.result)+'</span></div><div class="meta">Last: '+stamp(j.last)+' · Next: '+stamp(j.next)+'</div></div>').join('')+(p.runs?'<h3>Recent database jobs</h3>'+p.runs.map(r=>{let st=String(r.status||''),bad=/fail|error/i.test(st);return '<div class="row"><div>'+esc(String(r.date||'').replace('T',' ').slice(0,19))+'</div><span class="'+(bad?'bad':/success|ok|complete/i.test(st)?'good':'meta')+'">'+esc(st)+'</span></div>'}).join(''):'')+'</section>';
  let top=Object.entries(tr.pages).sort((a,b)=>b[1]-a[1]).slice(0,10);
- h+='<section'+(hasJobs?'':' class="wide"')+'><h2>Most opened pages</h2>'+(top.length?'<table><thead><tr><th>Page</th><th class="n">Opens</th></tr></thead><tbody>'+top.map(([pg,n])=>'<tr><td>'+esc(pg)+'</td><td class="n">'+num(n)+'</td></tr>').join('')+'</tbody></table>':'<p>No page opens recorded in this period.</p>')+'</section>';
+ h+='<section'+(hasJobs?'':' class="wide"')+'><h2>Most opened pages</h2><p class="meta" style="margin:-8px 0 12px">'+esc(scope)+'</p>'+(top.length?'<table><thead><tr><th>Page</th><th class="n">Opens</th></tr></thead><tbody>'+top.map(([pg,n])=>'<tr><td>'+esc(pg)+'</td><td class="n">'+num(n)+'</td></tr>').join('')+'</tbody></table>':'<p>No page opens recorded in this period.</p>')+'</section>';
  if(p.clubs)h+='<section class="wide"><h2>Club coverage</h2><p>Question bank and Wordle players per club. Wordle opens at 10 players; target 100.</p><div class="table-tools"><input id="club-search" aria-label="Search clubs" placeholder="Search clubs…"><span id="bank-summary" class="meta"></span></div><div class="table-wrap"><table><thead><tr><th>Club</th><th class="n">Questions</th><th class="n">Wordle players</th><th>Progress to 100</th></tr></thead><tbody id="club-rows"></tbody></table></div></section>';
  h+='</div>';
  // Keep the club search text and focus across the regular redraws.
- let search=document.getElementById('club-search'),q=search?.value||'',focused=search&&document.activeElement===search;
+ let search=document.getElementById('club-search'),q=search?.value||'',focused=search&&document.activeElement===search,ae=document.activeElement,barKey=ae?.classList?.contains('b')&&ae.dataset.site===s.slug&&ae.closest('.bars')?ae.dataset.key:null;
  $('body-'+s.slug).innerHTML=h;
+ if(barKey)document.querySelector('#body-'+s.slug+' .b[data-key="'+barKey+'"]')?.focus();
  if(p.clubs){let el=$('club-search');el.value=q;el.oninput=drawClubs;if(focused){el.focus();el.setSelectionRange(q.length,q.length)}drawClubs()}
 }
 function drawClubs(){let all=portfolioData?.sites['clubdailyfive.com']?.clubs||[],filter=$('club-search').value.toLowerCase();$('bank-summary').textContent=all.filter(c=>c.players>=100).length+'/'+all.length+' clubs at 100 players';$('club-rows').innerHTML=all.filter(c=>c.name.toLowerCase().includes(filter)).map(c=>'<tr><td>'+esc(c.name)+'</td><td class="n">'+num(c.questions)+'</td><td class="n">'+num(c.players)+(c.players<10?' <span class="bad">Building</span>':'')+'</td><td><progress max="100" value="'+Math.min(c.players,100)+'" aria-label="'+esc(c.name)+' player coverage"></progress></td></tr>').join('')}
