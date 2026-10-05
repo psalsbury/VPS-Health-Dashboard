@@ -155,7 +155,7 @@ const bars=(tr,cls)=>{let max=Math.max(1,...tr.rows.map(r=>r.home||0));return '<
 function drawPortfolio(){
  if(portfolioData){
   let stale=Date.now()-Date.parse(portfolioData.updated_at)>180000;
-  $('portfolio-time').innerHTML='Admin data updated '+new Date(portfolioData.updated_at).toLocaleString('en-GB',{timeZone:'Europe/London'})+' · refreshes every minute'+(stale?' · <span class="bad">statistics are stale</span>':'');
+  $('portfolio-time').innerHTML='Admin data updated '+new Date(portfolioData.updated_at).toLocaleString('en-GB',{timeZone:'Europe/London'})+' · refreshes every 15 seconds'+(stale?' · <span class="bad">statistics are stale</span>':'');
  }
  let totals={home:0,requests:0,errors:0},online=0;
  $('site-cards').innerHTML=SITES.map(s=>{
@@ -229,9 +229,9 @@ async function update(){if(busy)return;busy=true;$('refresh').disabled=true;try{
  let h=d.history,t0=h.length?h[0].time:d.time,span=Math.max(1,d.time-t0);
  $('lines').innerHTML=['cpu','memory','disk'].map((k,i)=>'<polyline fill="none" stroke="'+['#55b7ff','#bf9aff','#71ddb0'][i]+'" stroke-width="2" vector-effect="non-scaling-stroke" points="'+h.map(p=>((p.time-t0)*1000/span).toFixed(1)+','+(135-p[k]*1.2)).join(' ')+'"/>').join('');
  $('tstart').textContent=h.length?clock(t0):'';$('tend').textContent=clock(d.time);
- $('updated').textContent='Updated '+stamp(d.time)+' (UK) · Live readings every 15 seconds · Website checks and admin data every minute';
+ $('updated').textContent='Updated '+stamp(d.time)+' (UK) · Live readings every 15 seconds · Traffic and admin data every 15 seconds · Website checks every minute';
  drawPortfolio();
 }catch(e){$('status').className='banner warn';$('status').textContent='Unable to reach the monitor. Existing readings may be out of date.';$('pill').className='pill warn';$('pill').textContent='● Monitor unreachable'}finally{busy=false;$('refresh').disabled=false}}
 $('refresh').onclick=()=>{update();loadPortfolio()};
-update();loadPortfolio();setInterval(update,15000);setInterval(loadPortfolio,60000);
+update();loadPortfolio();setInterval(update,15000);setInterval(loadPortfolio,15000);
 </script></html>

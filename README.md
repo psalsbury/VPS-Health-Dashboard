@@ -9,7 +9,7 @@ Live at https://health.salsbury.co.uk. A private Linux monitoring dashboard behi
 - Pending software updates (and how many are security updates) and the outgoing mail queue.
 - Last result and next run of website systemd timers.
 - Four hours of resource history (up to 2,880 samples), saved to `/var/lib/salsbury-server-health` so it survives restarts.
-- Automatic page refresh every 15 seconds; resource collection approximately every 5 seconds; website checks every minute.
+- Automatic page refresh every 15 seconds; resource collection approximately every 5 seconds; traffic and admin figures every 15 seconds (rotated logs are cached in `traffic-cache.json`, so only the live log is re-read); website checks every minute.
 - Stale readings and monitoring failures are shown as warnings.
 
 ## Files

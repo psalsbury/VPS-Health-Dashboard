@@ -1,7 +1,8 @@
 [Unit]
-Description=Refresh website admin metrics every minute
+Description=Refresh website admin metrics every 15 seconds
 [Timer]
 OnBootSec=10
-OnUnitActiveSec=60
+OnUnitActiveSec=15
+AccuracySec=1
 [Install]
 WantedBy=timers.target

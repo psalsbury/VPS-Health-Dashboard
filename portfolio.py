@@ -14,39 +14,64 @@ def query(path,sql,args=()):
   c.execute('pragma query_only=on')
   return c.execute(sql,args).fetchall()
 def scalar(path,sql,args=()):return query(path,sql,args)[0][0]
-def traffic(domain):
- days={}; earliest=None; files=list(pathlib.Path('/var/log/apache2').glob(LOGS[domain]+'*'))
+def uk_day(stamp,hours={}):
+ # UK date only changes on the hour, so convert once per log hour rather than per line.
+ key=stamp[:14]+stamp[-6:]
+ if key not in hours:hours[key]=dt.datetime.strptime(stamp[:14]+':00:00'+stamp[-6:],'%d/%b/%Y:%H:%M:%S %z').astimezone(UK).date().isoformat()
+ return hours[key]
+def parse(p):
+ days={}; earliest=None
+ opener=gzip.open if p.suffix=='.gz' else open
+ with opener(p,'rt',errors='replace') as f:
+  for line in f:
+   match=PAT.search(line)
+   if not match:continue
+   stamp,method,path,status,ua=match.groups()
+   if method!='GET':continue
+   try:day=uk_day(stamp)
+   except ValueError:continue
+   earliest=min(earliest or day,day)
+   row=days.setdefault(day,dict(home=0,bots=0,requests=0,errors=0,pages={}))
+   row['requests']+=1;row['errors']+=int(int(status)>=500)
+   path=path.split('?',1)[0]
+   if not 200<=int(status)<300:continue
+   bot=bool(BOT.search(ua))
+   if path in ['/','/index.html','/index.php']:
+    row['bots' if bot else 'home']+=1
+   if not bot and (path=='/' or path.endswith(('.html','.php'))):
+    row['pages'][path]=row['pages'].get(path,0)+1
+ return {'days':days,'earliest':earliest}
+def traffic(domain,cache,fresh_cache):
+ # Rotated logs never change, so their totals are reused while name, size and mtime match; only the live log is re-read.
+ days={}; earliest=None
  cutoff=(dt.datetime.now(UK).date()-dt.timedelta(days=29)).isoformat()
- for p in files:
+ for p in pathlib.Path('/var/log/apache2').glob(LOGS[domain]+'*'):
   if not p.is_file():continue
-  opener=gzip.open if p.suffix=='.gz' else open
-  with opener(p,'rt',errors='replace') as f:
-   for line in f:
-    match=PAT.search(line)
-    if not match:continue
-    stamp,method,path,status,ua=match.groups()
-    if method!='GET':continue
-    try:day=dt.datetime.strptime(stamp,'%d/%b/%Y:%H:%M:%S %z').astimezone(UK).date().isoformat()
-    except ValueError:continue
-    earliest=min(earliest or day,day)
-    if day<cutoff:continue
-    row=days.setdefault(day,dict(home=0,bots=0,requests=0,errors=0,pages={}))
-    row['requests']+=1;row['errors']+=int(int(status)>=500)
-    path=path.split('?',1)[0]
-    if not 200<=int(status)<300:continue
-    bot=bool(BOT.search(ua))
-    if path in ['/','/index.html','/index.php']:
-     row['bots' if bot else 'home']+=1
-    if not bot and (path=='/' or path.endswith(('.html','.php'))):
-     row['pages'][path]=row['pages'].get(path,0)+1
- return {'days':days,'available_from':earliest,'definition':'Successful GET requests to /, /index.html or /index.php; known bots and monitors excluded. Hits are not unique visitors.'}
+  st=p.stat(); key=[st.st_size,st.st_mtime_ns]
+  hit=cache.get(str(p))
+  if p.name!=LOGS[domain] and hit and hit['key']==key:result=hit
+  else:result=dict(parse(p),key=key)
+  if p.name!=LOGS[domain]:fresh_cache[str(p)]=result
+  if result['earliest']:earliest=min(earliest or result['earliest'],result['earliest'])
+  for day,r in result['days'].items():
+   if day<cutoff:continue
+   row=days.setdefault(day,dict(home=0,bots=0,requests=0,errors=0,pages={}))
+   for k in ['home','bots','requests','errors']:row[k]+=r[k]
+   for page,n in r['pages'].items():row['pages'][page]=row['pages'].get(page,0)+n
+ return {'days':days,'available_from':earliest,'counted_to':dt.datetime.now(dt.timezone.utc).isoformat(),'definition':'Successful GET requests to /, /index.html or /index.php; known bots and monitors excluded. Hits are not unique visitors.'}
 def collect():
  data={'updated_at':dt.datetime.now(dt.timezone.utc).isoformat(),'sites':{},'errors':[]}
+ try:cache=json.loads((STATE/'traffic-cache.json').read_text())
+ except (OSError,ValueError):cache={}
+ fresh_cache={}
  for domain in DOMAINS:
   site={'traffic':None,'metrics':{},'details':[]}
-  try:site['traffic']=traffic(domain)
+  try:site['traffic']=traffic(domain,cache,fresh_cache)
   except Exception as e:site['error']='Traffic unavailable: '+type(e).__name__
   data['sites'][domain]=site
+ try:
+  tmp=STATE/'traffic-cache.tmp';tmp.write_text(json.dumps(fresh_cache));tmp.replace(STATE/'traffic-cache.json')
+ except OSError:pass
  def block(domain,fn):
   try:fn(data['sites'][domain])
   except Exception as e:data['sites'][domain]['data_error']='Admin data unavailable: '+type(e).__name__
