@@ -83,6 +83,9 @@ def collect():
   players=dict(query(w,'select c.slug,count(p.id) from clubs c left join players p on p.club_id=c.id group by c.id'))
   s['clubs']=[{'name':n,'slug':sl,'questions':num,'players':players.get(sl,0)} for sl,n,num in query(q,"select c.slug,c.name,sum(case when q.status='reviewed' then 1 else 0 end) from clubs c left join questions q on q.club_id=c.id where c.active=1 group by c.id order by c.name")]
   s['activity']= [{'date':d,'game':g,'event':e,'total':t} for d,g,e,t in query(a,'select event_date,game,event,sum(total) from game_funnel group by event_date,game,event')]
+  s['club_activity']=[{'date':d,'slug':sl,'game':g,'event':e,'total':t} for d,sl,g,e,t in query(a,'select event_date,club_slug,game,event,total from game_funnel')]
+  s['returning_activity']=[{'date':d,'active':n,'returning':r} for d,n,r in query(a,'select event_date,active,returned_count from returning_activity order by event_date')]
+  s['returning_since']=scalar(a,'select min(event_date) from returning_activity')
   s['runs']=[{'date':date,'status':status} for date,status in query(q,'select started_at,status from generation_runs order by id desc limit 5')]
   s['runs'] += [{'date':date,'status':status} for date,status in query(w,'select ran_at,status from agent_runs order by id desc limit 5')]
  def predictions(s):
