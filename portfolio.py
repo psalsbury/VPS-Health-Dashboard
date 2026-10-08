@@ -126,6 +126,12 @@ def collect():
    current=fresh['days'].setdefault(day,dict(home=0,bots=0,requests=0,errors=0,pages={}))
    for key in ['home','bots','requests','errors']:current[key]=max(current.get(key,0),row.get(key,0))
    for page,n in row.get('pages',{}).items():current['pages'][page]=max(current['pages'].get(page,0),n)
+  try:
+   import traffic_classifier
+   site['traffic_classified']=traffic_classifier.collect(domain,LOGS[domain],old.get('sites',{}).get(domain,{}).get('traffic_classified',{}))
+  except Exception as e:
+   site['traffic_classified']=old.get('sites',{}).get(domain,{}).get('traffic_classified',{})
+   site['classification_error']='Traffic classification unavailable: '+type(e).__name__
   # Keep only each day's most opened pages so a year of history stays small.
   for row in fresh['days'].values():
    if len(row['pages'])>TOP_PAGES:row['pages']=dict(sorted(row['pages'].items(),key=lambda x:-x[1])[:TOP_PAGES])

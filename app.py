@@ -39,7 +39,7 @@ def websites():
         for domain in SITES:
             t=time.monotonic()
             try:
-                with urllib.request.urlopen('https://'+domain,timeout=8) as response:
+                with urllib.request.urlopen(urllib.request.Request('https://'+domain,headers={'User-Agent':'SalsburyHealth/1.0'}),timeout=8) as response:
                     status=response.status
                 results.append(dict(name=domain,ok=200<=status<400,code=status,ms=round((time.monotonic()-t)*1000),certificate_days=cert_days(domain,443)))
             except Exception as e:

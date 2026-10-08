@@ -76,7 +76,7 @@ footer{color:#9aabc3;font-size:13px;margin-top:24px}
   <div class="cards" id="portfolio-totals"></div>
   <div class="site-grid" id="site-cards"></div>
   <section class="site-accent" style="--c:#8a9bb5;margin-top:18px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h2 style="margin:0">Server</h2><a href="#server">Server details →</a></div><div class="metric-grid" id="server-mini" style="margin-top:12px"></div></section>
-  <p class="meta" style="margin-top:14px">UK calendar days. Homepage hits count successful requests to the homepage, excluding recognised bots and monitors. Repeat visits are counted again.</p>
+  <p class="meta" style="margin-top:14px">UK calendar days. Estimated visits use browser sessions with supporting page activity; they are not verified people. Crawlers, health checks and uncertain homepage loads are shown separately. Game activity provides stronger evidence of use.</p>
  </div>
  <!-- One view per site, filled by script -->
  <div id="site-views"></div>
@@ -190,13 +190,13 @@ function statusChips(s){
 }
 function trafficFor(s,useFocus=true){
  let bs=buckets(),t=portfolioData?.sites[s.domain]?.traffic||{days:{}},get=d=>t.days[d]||{};
- let f=useFocus?bs.find(b=>b.key===focus[s.slug]):null,days=f?f.days:bs.flatMap(b=>b.days),rows=days.map(get),pages={};
+ let f=useFocus?bs.find(b=>b.key===focus[s.slug]):null,days=f?f.days:bs.flatMap(b=>b.days),rows=days.map(get),classified=days.map(d=>portfolioData?.sites[s.domain]?.traffic_classified?.days?.[d]||{}),pages={};
  rows.forEach(r=>Object.entries(r.pages||{}).forEach(([p,n])=>pages[p]=(pages[p]||0)+n));
- return {bs,focus:f,days,rows,t,pages,values:bs.map(b=>sum(b.days.map(get),'home')),home:sum(rows,'home'),bots:sum(rows,'bots'),errors:sum(rows,'errors'),requests:sum(rows,'requests')};
+ return {bs,focus:f,days,rows,t,pages,classified,values:bs.map(b=>sum(b.days.map(d=>portfolioData?.sites[s.domain]?.traffic_classified?.days?.[d]||{}),'human_visits')),home:sum(classified,'human_visits'),humanLoads:sum(classified,'human_home'),crawlers:sum(classified,'crawlers'),checks:sum(classified,'health_checks'),uncertain:sum(classified,'uncertain'),totalHome:sum(classified,'total_home'),errors:sum(rows,'errors'),requests:sum(rows,'requests')};
 }
 function bars(tr,cls,s){
  let max=Math.max(1,...tr.values),n=tr.bs.length,step=Math.ceil(n/7);
- let h='<div class="'+cls+(tr.focus?' has-focus':'')+'">'+tr.bs.map((b,i)=>{let t=esc(b.label)+': '+num(tr.values[i])+' homepage hits';if(b.future)return '<button type="button" class="b" disabled title="'+esc(b.label)+': not yet" aria-label="'+esc(b.label)+': not yet"><span style="height:0"></span></button>';return '<button type="button" class="b" data-site="'+s.slug+'" data-key="'+b.key+'" aria-pressed="'+(tr.focus?.key===b.key)+'" title="'+t+'" aria-label="'+t+'"><span style="height:'+Math.max(2,tr.values[i]/max*100)+'%"></span></button>'}).join('')+'</div>';
+ let h='<div class="'+cls+(tr.focus?' has-focus':'')+'">'+tr.bs.map((b,i)=>{let t=esc(b.label)+': '+num(tr.values[i])+' estimated visits';if(b.future)return '<button type="button" class="b" disabled title="'+esc(b.label)+': not yet" aria-label="'+esc(b.label)+': not yet"><span style="height:0"></span></button>';return '<button type="button" class="b" data-site="'+s.slug+'" data-key="'+b.key+'" aria-pressed="'+(tr.focus?.key===b.key)+'" title="'+t+'" aria-label="'+t+'"><span style="height:'+Math.max(2,tr.values[i]/max*100)+'%"></span></button>'}).join('')+'</div>';
  if(cls==='bars')h+='<div class="xl" aria-hidden="true">'+tr.bs.map((b,i)=>'<span>'+(i%step===0?esc(b.short):'')+'</span>').join('')+'</div>';
  return h;
 }
@@ -208,18 +208,18 @@ function drawPortfolio(){
   let stale=Date.now()-Date.parse(portfolioData.updated_at)>180000;
   $('portfolio-time').innerHTML='Admin data updated '+new Date(portfolioData.updated_at).toLocaleString('en-GB',{timeZone:'Europe/London'})+' · refreshes every 15 seconds'+(stale?' · <span class="bad">statistics are stale</span>':'');
  }
- let totals={home:0,requests:0,errors:0},online=0;
+ let totals={home:0,crawlers:0,checks:0,uncertain:0,requests:0,errors:0},online=0;
  $('site-cards').innerHTML=SITES.map(s=>{
   let tr=trafficFor(s,false),p=portfolioData?.sites[s.domain]||{},issues=siteIssues(s),c=check(s);
-  totals.home+=tr.home;totals.requests+=tr.requests;totals.errors+=tr.errors;if(c?.ok)online++;
+  totals.home+=tr.home;totals.crawlers+=tr.crawlers;totals.checks+=tr.checks;totals.uncertain+=tr.uncertain;totals.requests+=tr.requests;totals.errors+=tr.errors;if(c?.ok)online++;
   let headline=Object.entries(p.metrics||{}).slice(0,2);
   return '<section class="site-card" style="--c:'+s.color+'"><div><h2><span class="dot"></span><a href="#'+s.slug+'" style="color:inherit">'+esc(s.name)+'</a></h2><a class="meta" href="https://'+s.domain+'" target="_blank" rel="noopener">'+s.domain+' ↗</a></div><div class="chips">'+statusChips(s)+'</div>'
    +(issues.length?'<div class="bad" style="font-size:14px">'+issues.map(esc).join('<br>')+'</div>':'')
-   +'<div class="metric-grid">'+metric('Homepage hits',tr.home)+headline.map(([k,v])=>metric(k,v)).join('')+'</div>'
+   +'<div class="metric-grid">'+metric('Estimated visits',tr.home)+metric('Crawler loads',tr.crawlers)+metric('Health check loads',tr.checks)+metric('Uncertain loads',tr.uncertain)+headline.map(([k,v])=>metric(k,v)).join('')+'</div>'
    +(tr.bs.length>1?bars(tr,'spark',s):'')
    +'<a class="open" href="#'+s.slug+'">Open '+esc(s.name)+' →</a></section>';
  }).join('');
- $('portfolio-totals').innerHTML=[['Sites online',health?online+' / '+SITES.length:'—'],['Homepage hits',num(totals.home)],['GET requests',num(totals.requests)],['Server errors',num(totals.errors)]].map(([k,v])=>'<div class="card"><div class="label">'+k+'</div><div class="value">'+v+'</div><div class="meta">'+(k==='Sites online'?'Checked every minute':esc(periodLabel()))+'</div></div>').join('');
+ $('portfolio-totals').innerHTML=[['Sites online',health?online+' / '+SITES.length:'—'],['Estimated visits',num(totals.home)],['Crawler loads',num(totals.crawlers)],['Health check loads',num(totals.checks)],['Uncertain loads',num(totals.uncertain)]].map(([k,v])=>'<div class="card"><div class="label">'+k+'</div><div class="value">'+v+'</div><div class="meta">'+(k==='Sites online'?'Checked every minute':esc(periodLabel()))+'</div></div>').join('');
  SITES.forEach(drawSite);
 }
 function drawSite(s){
@@ -230,7 +230,7 @@ function drawSite(s){
  if(issues.length)h+='<div class="banner warn"><strong>Needs attention</strong><ul>'+issues.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>';
  h+='<div class="grid" style="margin-top:0">';
  let scope=tr.focus?tr.focus.label:periodLabel(),unit=period.kind==='year'?'week':'day';
- h+='<section class="wide"><div class="trafhead"><h2>Traffic</h2><span class="meta">'+(tr.focus?'Showing <strong>'+esc(tr.focus.label)+'</strong> · <button type="button" class="link" data-clear="'+s.slug+'">Back to '+esc(periodLabel())+'</button>':'Showing '+esc(periodLabel())+(tr.bs.length>1?' · Click a bar to see that '+unit:''))+'</span></div><div class="metric-grid">'+metric('Homepage hits',tr.home)+metric('Bot / monitor homepage hits',tr.bots)+metric('All GET requests',tr.requests)+metric('Server errors (5xx)',tr.errors)+'</div>'+bars(tr,'bars',s)+'<p class="meta">Traffic history available from '+esc(tr.t.available_from?shortDay(tr.t.available_from)+' '+tr.t.available_from.slice(0,4):'today; awaiting first requests')+'. Earlier days were not recorded.</p></section>';
+ h+='<section class="wide"><div class="trafhead"><h2>Traffic</h2><span class="meta">'+(tr.focus?'Showing <strong>'+esc(tr.focus.label)+'</strong> · <button type="button" class="link" data-clear="'+s.slug+'">Back to '+esc(periodLabel())+'</button>':'Showing '+esc(periodLabel())+(tr.bs.length>1?' · Click a bar to see that '+unit:''))+'</span></div><div class="metric-grid">'+metric('Estimated visits',tr.home)+metric('Crawler homepage loads',tr.crawlers)+metric('Health check homepage loads',tr.checks)+metric('Uncertain homepage loads',tr.uncertain)+metric('Estimated human homepage loads',tr.humanLoads)+metric('Total homepage loads',tr.totalHome)+metric('All GET requests',tr.requests)+metric('Server errors (5xx)',tr.errors)+'</div>'+bars(tr,'bars',s)+'<p class="meta">Bars show estimated visits: browser sessions with a homepage load and supporting script, style, font or API requests. A new session begins after 30 minutes of inactivity or at UK midnight. Estimates can include disguised automation. All other traffic categories count homepage loads, not people.</p><p class="meta">Classified traffic available from '+esc(p.traffic_classified?.available_from||'not yet collected')+'. Older homepage totals cannot be classified without their logs.</p><p class="meta">Traffic history available from '+esc(tr.t.available_from?shortDay(tr.t.available_from)+' '+tr.t.available_from.slice(0,4):'today; awaiting first requests')+'. Earlier days were not recorded.</p></section>';
  h+='<section><h2>Admin totals</h2><p class="meta" style="margin-bottom:12px">Current database figures</p><div class="metric-grid">'+Object.entries(p.metrics||{}).map(([k,v])=>metric(k,v)).join('')+'</div>'+(p.note?'<p class="meta" style="margin-top:12px">'+esc(p.note)+'</p>':'')+'</section>';
  let events={},act='';
  let inScope=new Set(tr.days);(p.activity||[]).filter(r=>inScope.has(r.date)).forEach(r=>{let k=title(r.game)+' · '+r.event;events[k]=(events[k]||0)+r.total});
@@ -238,11 +238,11 @@ function drawSite(s){
  else if(p.activity)act+='<p>No activity recorded in this period.</p>';
  if(p.next_round)act+='<h3>Next round</h3>'+row('Round '+esc(p.next_round.round),num(p.next_round.fixtures)+' fixtures',true,num(p.next_round.humans)+' humans and '+num(p.next_round.bots)+' bots have predictions');
  if(p.details?.length)act+='<h3>Status</h3>'+p.details.map(x=>row(esc(x.label),esc(x.value||'Not recorded'),!!x.value)).join('');
- h+='<section><h2>Activity</h2><p class="meta" style="margin:-8px 0 12px">'+esc(scope)+'</p>'+(act||'<p>This site does not record activity centrally.</p>')+'</section>';
+ h+='<section><h2>Recorded game activity</h2><p class="meta" style="margin:-8px 0 12px">'+esc(scope)+'</p>'+(act||'<p>This site does not record activity centrally.</p>')+'</section>';
  let jobs=siteJobs(s),hasJobs=jobs.length||p.runs;
  if(hasJobs)h+='<section><h2>Scheduled jobs</h2>'+jobs.map(j=>'<div class="job"><div class="jobline"><span>'+esc(j.name)+'</span><span class="'+(jobOk(j)?'good':'bad')+'">'+esc(j.state==='activating'?'Running':j.result)+'</span></div><div class="meta">Last: '+stamp(j.last)+' · Next: '+stamp(j.next)+'</div></div>').join('')+(p.runs?'<h3>Recent database jobs</h3>'+p.runs.map(r=>{let st=String(r.status||''),bad=/fail|error/i.test(st);return '<div class="row"><div>'+esc(String(r.date||'').replace('T',' ').slice(0,19))+'</div><span class="'+(bad?'bad':/success|ok|complete/i.test(st)?'good':'meta')+'">'+esc(st)+'</span></div>'}).join(''):'')+'</section>';
  let top=Object.entries(tr.pages).sort((a,b)=>b[1]-a[1]).slice(0,10);
- h+='<section'+(hasJobs?'':' class="wide"')+'><h2>Most opened pages</h2><p class="meta" style="margin:-8px 0 12px">'+esc(scope)+'</p>'+(top.length?'<table><thead><tr><th>Page</th><th class="n">Opens</th></tr></thead><tbody>'+top.map(([pg,n])=>'<tr><td>'+esc(pg)+'</td><td class="n">'+num(n)+'</td></tr>').join('')+'</tbody></table>':'<p>No page opens recorded in this period.</p>')+'</section>';
+ h+='<section'+(hasJobs?'':' class="wide"')+'><h2>Page loads excluding recognised bots</h2><p class="meta" style="margin:-8px 0 12px">'+esc(scope)+'</p>'+(top.length?'<table><thead><tr><th>Page</th><th class="n">Opens</th></tr></thead><tbody>'+top.map(([pg,n])=>'<tr><td>'+esc(pg)+'</td><td class="n">'+num(n)+'</td></tr>').join('')+'</tbody></table>':'<p>No page opens recorded in this period.</p>')+'</section>';
  if(p.club_activity){
   const pct=(n,d)=>d?(100*n/d).toFixed(1)+'%':'—',counts={};
   for(const r of p.club_activity.filter(r=>inScope.has(r.date))){const k=r.slug+':'+r.game;counts[k]??={slug:r.slug,game:r.game,started:0,completed:0};if(r.event==='started'||r.event==='completed')counts[k][r.event]+=r.total}
