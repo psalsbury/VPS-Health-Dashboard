@@ -9,7 +9,7 @@ history = deque(maxlen=2880)
 lock = threading.Lock()
 latest = {}
 SERVICES = {'apache2':'Web server','dovecot':'Incoming mail','postfix@-':'Outgoing mail','opendkim':'Mail signing','rspamd':'Spam filtering','redis-server':'Redis','cron':'Scheduled tasks','sentinelx-cloud-core':'Server connection'}
-SITES = ['salsbury.co.uk','louisesalsbury.com','clubdailyfive.com','predictioncomp.com']
+SITES = ['salsbury.co.uk','louisesalsbury.com','clubdailyfive.com','predictioncomp.com','salsbury.uk']
 # Certificates not covered by the website checks: (label, host, port)
 CERTS = [('Mail server (IMAP)','mail.clubdailyfive.com',993),('This dashboard','health.salsbury.co.uk',443)]
 CERT_WARN_DAYS = 21  # certbot renews at 30 days, so below 21 means renewal is failing
